@@ -47,6 +47,7 @@
     {% if status %}
     <span>Data as of {{ status.as_of | moment }} &middot; <a href="{{ url_for('changes.index') }}">Ruleset {{ status.rulesets | join(', ') }}</a></span>
     {% endif %}
+    <p class="disclaimer">The Tracker is an independent project and not an official source. For the authoritative record, see <a href="https://malegislature.gov">malegislature.gov</a>.</p>
   </div>
 </footer>
 </body>

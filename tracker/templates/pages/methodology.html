@@ -29,6 +29,33 @@
     <p>Sometimes a bill appears on a committee's list but the bill history does not show it being referred there. The Tracker lists that segment as Provisional, with the note "referral not found in the bill history", and checks no requirements for it until the referral appears.</p>
 
     <h2 id="requirements">The four requirements</h2>
+    <figure class="flow">
+      <ol>
+        <li>
+          <p class="flow-step">Referral</p>
+          <p>The bill is referred to the committee.</p>
+        </li>
+        <li>
+          <p class="flow-step">Hearing</p>
+          <p>The committee holds a public hearing on the bill.</p>
+          <ul>
+            <li><strong>Hearing notice</strong> announced at least 10 days before</li>
+            <li><strong>Summary</strong> posted before the hearing</li>
+          </ul>
+        </li>
+        <li>
+          <p class="flow-step">Committee vote</p>
+          <p>The committee votes on the bill.</p>
+          <ul><li><strong>Vote</strong> posted within 48 hours</li></ul>
+        </li>
+        <li>
+          <p class="flow-step">Report</p>
+          <p>The committee reports the bill out.</p>
+          <ul><li><strong>Reported out</strong> by the reporting deadline</li></ul>
+        </li>
+      </ol>
+      <figcaption>Each requirement is tied to a step in a bill's progress through committee. This is also the order of the attrition funnel on the dashboard.</figcaption>
+    </figure>
     <table>
       <thead><tr><th>Requirement</th><th>What the Tracker checks</th><th>Rules</th></tr></thead>
       <tbody>
@@ -63,6 +90,26 @@
     </ul>
 
     <h2 id="sources">Sources and updates</h2>
+    <figure class="flow">
+      <ol>
+        <li>
+          <p class="flow-step">Read</p>
+          <p>Bill histories, hearing pages, and committee documents on malegislature.gov.</p>
+        </li>
+        <li>
+          <p class="flow-step">Store</p>
+          <p>Every page is saved exactly as it was read, with the date.</p>
+        </li>
+        <li>
+          <p class="flow-step">Check</p>
+          <p>What the pages show is compared with the verbatim rule text.</p>
+        </li>
+        <li>
+          <p class="flow-step">Publish</p>
+          <p>Each finding appears here with its audit trail and the rules it cites.</p>
+        </li>
+      </ol>
+    </figure>
     <p>The Tracker reads bill histories, hearing pages, and committee documents on malegislature.gov. Every page it reads is stored, so any finding can be re-checked against exactly what the site said at the time. The data is updated once a day, usually overnight; the date of each committee's data is on the <a href="{{ url_for('dashboard.committees') }}">committee table</a>.</p>
     <p>Every change to how the Tracker collects and checks the record is listed on the <a href="{{ url_for('changes.index') }}">changes page</a>, with the date it took effect.</p>
     <p>If you think a finding is wrong, please <a href="{{ url_for('pages.contact') }}">tell me</a>, with the bill number and committee.</p>

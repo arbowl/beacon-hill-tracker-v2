@@ -77,7 +77,6 @@ def index() -> Response:
         committee_rows = queries.committees(conn, session)
         selected = next((c for c in committee_rows if c["committee_id"] == filters.committee), None)
         stats = queries.stats(conn, session, filters.committee)
-        session_stats = stats if not filters.committee else queries.stats(conn, session, None)
         page = queries.segment_page(conn, session, filters)
         context = dict(
             filters=filters,
@@ -85,7 +84,6 @@ def index() -> Response:
             status=status,
             session=session,
             stats=stats,
-            session_stats=session_stats,
             committees=committee_rows,
             selected_committee=selected,
             deltas=figures.deltas(
