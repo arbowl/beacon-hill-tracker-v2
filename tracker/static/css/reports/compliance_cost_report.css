@@ -1,0 +1,258 @@
+:root {
+      --ink: #1a1a1a;
+      --paper: #faf8f5;
+      --accent: #8b2332;
+      --muted: #6b6b6b;
+      --rule: #d4d0c8;
+      --highlight: #fff3cd;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── Header ────────────────────────────────────────────────── */
+
+    header {
+      text-align: center;
+      padding: 3rem 0 2.5rem;
+      border-bottom: 3px double var(--rule);
+      margin-bottom: 2.5rem;
+    }
+
+    .kicker {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-family: "Merriweather", Georgia, serif;
+      font-size: clamp(1.7rem, 4vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--muted);
+      font-style: italic;
+      font-family: "Merriweather", Georgia, serif;
+      max-width: 600px;
+      margin: 0 auto 1.25rem;
+    }
+
+    .byline {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* ── Intro ─────────────────────────────────────────────────── */
+
+    .intro {
+      font-size: 1rem;
+      color: var(--ink);
+      margin-bottom: 1.5rem;
+    }
+
+    .as-of-banner {
+      background: var(--highlight);
+      border: 1px solid #e6c84a;
+      padding: 0.6rem 1rem;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+      color: #5a4a00;
+      display: inline-block;
+    }
+
+    /* ── Table ─────────────────────────────────────────────────── */
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 0 -1.5rem;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.875rem;
+      background: white;
+    }
+
+    thead th {
+      text-align: left;
+      font-weight: 700;
+      padding: 0.65rem 0.75rem;
+      border-bottom: 2px solid var(--ink);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    thead th.num { text-align: right; }
+
+    tbody tr { border-bottom: 1px solid var(--rule); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f5f2ee; }
+
+    td {
+      padding: 0.55rem 0.75rem;
+      vertical-align: middle;
+    }
+
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .chair-name {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .chamber-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 2px;
+      background: #e8e4dc;
+      color: var(--muted);
+    }
+
+    .chamber-badge.senate { background: #e3eaf5; color: #3a5a8c; }
+    .chamber-badge.house  { background: #e8f0e4; color: #3a6a2a; }
+
+    .committee-name { color: #444; }
+
+    .stipend-val {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    .stipend-none { color: #bbb; }
+
+    /* compliance bar */
+    .compliance-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .bar-track {
+      width: 64px;
+      height: 6px;
+      background: #e8e4dc;
+      border-radius: 3px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .bar-fill {
+      display: block;
+      height: 100%;
+      border-radius: 3px;
+      background: var(--accent);
+    }
+
+    .pct-label {
+      font-variant-numeric: tabular-nums;
+      min-width: 38px;
+      text-align: right;
+      font-size: 0.82rem;
+    }
+
+    .no-data { color: #bbb; }
+
+    /* ── Methodology ───────────────────────────────────────────── */
+
+    .methodology-box {
+      background: #f0ece4;
+      padding: 1.5rem;
+      margin: 2.5rem 0 0;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      line-height: 1.65;
+    }
+
+    .methodology-box h3 {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .methodology-box p {
+      margin-bottom: 0.5rem;
+      color: var(--muted);
+    }
+
+    .methodology-box p:last-child { margin-bottom: 0; }
+
+    .methodology-box a { color: var(--accent); text-decoration: none; }
+    .methodology-box a:hover { text-decoration: underline; }
+
+    /* ── Footer ────────────────────────────────────────────────── */
+
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--rule);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    footer p { margin-bottom: 0.4rem; }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .table-wrap { margin: 0 -1rem; }
+      .bar-track { width: 40px; }
+    }
+.s1 { width:0.0% !important; }
+.s2 { width:3.6% !important; }
+.s3 { width:5.0% !important; }
+.s4 { width:5.1% !important; }
+.s5 { width:5.4% !important; }
+.s6 { width:5.5% !important; }
+.s7 { width:7.4% !important; }
+.s8 { width:8.5% !important; }
+.s9 { width:9.4% !important; }
+.s10 { width:10.2% !important; }
+.s11 { width:10.4% !important; }
+.s12 { width:10.5% !important; }
+.s13 { width:11.3% !important; }
+.s14 { width:12.6% !important; }
+.s15 { width:12.8% !important; }
+.s16 { width:15.1% !important; }
+.s17 { width:16.3% !important; }
+.s18 { width:16.5% !important; }
+.s19 { width:16.7% !important; }
+.s20 { width:17.0% !important; }
+.s21 { width:20.7% !important; }
+.s22 { width:23.5% !important; }
+.s23 { width:26.4% !important; }
+.s24 { width:40.8% !important; }

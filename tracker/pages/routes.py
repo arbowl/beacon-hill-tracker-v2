@@ -2,9 +2,10 @@
 
 import logging
 from email.message import EmailMessage
+from pathlib import Path
 from typing import Annotated, cast
 
-from flask import Blueprint, current_app, render_template, request
+from flask import Blueprint, Response, current_app, render_template, request, send_from_directory
 from pydantic import BaseModel, ConfigDict, EmailStr, StringConstraints, ValidationError
 
 from tracker import csrf
@@ -57,6 +58,14 @@ def privacy() -> str:
 @bp.get("/terms")
 def terms() -> str:
     return render_template("pages/terms.html")
+
+
+DOCUMENTS_DIR = Path(__file__).resolve().parent.parent / "static" / "documents"
+
+
+@bp.get("/documents/<path:filename>")
+def document(filename: str) -> Response:
+    return send_from_directory(DOCUMENTS_DIR, filename, max_age=86400)
 
 
 class ContactForm(BaseModel):
