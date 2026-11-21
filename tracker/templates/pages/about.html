@@ -9,9 +9,11 @@
 <article class="prose">
   <h2>What it does</h2>
   <p>The joint rules of the Massachusetts General Court require committees to give notice of hearings, post bill summaries, post their votes, and report bills out by a deadline. The Tracker checks each bill each committee handles against those four requirements, using only what is published on malegislature.gov, and shows its work: every finding links to the rule text and the evidence behind it.</p>
+  <p>These requirements exist so the public can see how bills move through committee. Checking them by hand is not practical: the record is spread across thousands of pages, committees post summaries and votes in different places and formats, and deadlines pass every day. The Tracker reads the whole record daily, so every bill is checked and every finding is dated.</p>
   <h2>What it does not do</h2>
   <p>The Tracker does not grade, rank, or endorse anyone, and it takes no position on any bill. A detected violation means the public record does not show a requirement being met; it is not an accusation, and it may reflect a gap in what was posted rather than in what a committee did. The <a href="{{ url_for('pages.methodology') }}">methodology</a> explains how each finding is reached and where the method has limits.</p>
   <h2>Who runs it</h2>
-  <p>I run the Tracker on my own. I am not affiliated with the Legislature, any campaign, or any advocacy group. If you have a correction, a question, or a use for the data, please <a href="{{ url_for('pages.contact') }}">get in touch</a>.</p>
+  <p>My name is Drew Bowler. I build and run the Tracker on my own, as an independent project. It receives no funding and has no sponsors. Outside the Tracker I take part in civic advocacy, but the Tracker itself is not affiliated with the Legislature, any campaign, or any advocacy group, and its findings come only from the public record checked against the rules as written.</p>
+  <p>The Tracker's <a href="https://github.com/arbowl/beacon-hill-compliance-tracker-v2/">source code is public</a>, so anyone can check how it reaches its findings. If you have a correction, a question, or a use for the data, please <a href="{{ url_for('pages.contact') }}">get in touch</a>.</p>
 </article>
 {% endblock %}
