@@ -1,0 +1,49 @@
+<section id="charts" class="section"{% if stats %} data-charts='{{ chart_data | tojson }}'{% endif %}{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% if stats %}
+  <div class="chart-row">
+    <article class="panel">
+      <h3>Compliance breakdown</h3>
+      <p class="caption">All {{ stats.total | number }} bill segments{% if selected_committee %} in {{ selected_committee.committee_id }}{% endif %} by current label</p>
+      <div class="chart-box pie"><canvas id="pie" role="img" aria-label="Pie chart of bill segments: {{ stats.compliant | number }} with no violation detected, {{ stats.provisional | number }} provisional, {{ stats.non_compliant | number }} with a violation detected"></canvas></div>
+      <ul class="legend">
+        {% for css, label, value, slug in [('compliant', 'No violation detected', stats.compliant, 'compliant'), ('provisional', 'Provisional', stats.provisional, 'provisional'), ('noncompliant', 'Violation detected', stats.non_compliant, 'non-compliant')] %}
+        <li><span class="swatch {{ css }}"></span><a class="name" href="?{{ filters.query_string(status=slug) }}">{{ label }}</a><span class="num">{{ value | number }}</span><span class="pct">{{ '%.1f' | format(100 * value / stats.total) }}%</span></li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h3>Attrition funnel</h3>
+      <p class="caption">Bill segments with every requirement met so far, in the order a bill meets them. A requirement that has not applied yet, such as notice for a bill not yet heard, counts as passed.</p>
+      <div class="chart-box"><canvas id="funnel" role="img" aria-label="Funnel: {% for label in funnel_labels %}{{ stats.funnel[loop.index0] | number }} {{ label }}{% if not loop.last %}, {% endif %}{% endfor %}"></canvas></div>
+      <details class="table-view">
+        <summary>View as table</summary>
+        <table>
+          <thead><tr><th>Stage</th><th>Segments</th><th>Drop</th></tr></thead>
+          <tbody>
+            {% for label in funnel_labels %}
+            {% set value = stats.funnel[loop.index0] %}
+            <tr><td>{{ label }}</td><td>{{ value | number }}</td><td>{% if not loop.first and stats.funnel[loop.index0 - 1] %}-{{ '%.1f' | format(100 * (1 - value / stats.funnel[loop.index0 - 1])) }}%{% endif %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </details>
+    </article>
+
+    <article class="panel">
+      <h3>Range across committees</h3>
+      <p class="caption">Each dot is one committee: the share of its determined bill segments with every applicable requirement met. Hover or focus a dot for its name. <a href="{{ url_for('dashboard.committees') }}">All committees, A to Z</a></p>
+      {% if strip %}
+      <div class="strip-wrap"><svg class="strip" viewBox="0 0 360 126" role="img" aria-label="{{ strip.dots | length }} committees, from {{ '%.0f' | format(strip.low) }}% to {{ '%.0f' | format(strip.high) }}%, median {{ '%.0f' | format(strip.median) }}%">
+        <g class="axis"><line x1="12" y1="101" x2="348" y2="101"/>{% for t, x in strip.ticks %}<line x1="{{ x }}" y1="101" x2="{{ x }}" y2="105"/><text x="{{ x }}" y="118">{{ t }}%</text>{% endfor %}</g>
+        <g class="median"><line x1="{{ strip.median_x }}" y1="14" x2="{{ strip.median_x }}" y2="101"/><text x="{{ strip.median_x }}" y="9">Median {{ '%.0f' | format(strip.median) }}%</text></g>
+        {% for d in strip.dots %}<g tabindex="0"{% if d.selected %} class="selected"{% endif %}><title>{{ d.name }} ({{ d.committee_id }}): {{ '%.0f' | format(d.rate) }}%</title><circle class="hit" cx="{{ d.cx }}" cy="{{ d.cy }}" r="10"/><circle class="dot" cx="{{ d.cx }}" cy="{{ d.cy }}" r="6"/></g>{% endfor %}
+      </svg></div>
+      <p class="caption">Committees with fewer than 20 determined bill segments are not shown. Provisional segments are left out of this measure.</p>
+      {% else %}
+      <p class="caption">No committee has 20 determined bill segments yet.</p>
+      {% endif %}
+    </article>
+  </div>
+  {% endif %}
+</section>

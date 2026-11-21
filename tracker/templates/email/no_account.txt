@@ -1,0 +1,7 @@
+Signing in to the Beacon Hill Compliance Tracker
+
+Someone asked to sign in to the Beacon Hill Compliance Tracker with this address, but it has no account. To create one:
+
+{{ signup_url }}
+
+If you did not ask to sign in, you can ignore this email.

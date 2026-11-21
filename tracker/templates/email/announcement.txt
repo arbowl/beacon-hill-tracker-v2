@@ -1,0 +1,5 @@
+{{ announcement.subject }}
+
+{{ announcement.body }}
+
+{% include "email/_footer.txt" %}

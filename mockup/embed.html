@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Housing Widget</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700;900&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+  body { background: var(--c-surface); margin: 0; }
+  .widget { border: 1px solid var(--c-rule); border-top: 3px solid var(--c-text); padding: 14px 16px; height: 220px; display: flex; flex-direction: column; }
+  .widget h1 { font-size: 15px; }
+  .widget .rate { font-size: 32px; font-weight: 600; letter-spacing: -.02em; margin: 6px 0 0; line-height: 1.1; }
+  .widget .rate small { font-size: 13px; font-weight: 400; color: var(--c-muted); letter-spacing: 0; }
+  .bar { display: flex; gap: 2px; height: 10px; margin: 10px 0 6px; }
+  .bar span:first-child { border-radius: 2px 0 0 2px; }
+  .bar span:last-child { border-radius: 0 2px 2px 0; }
+  .counts { display: flex; gap: 14px; font-size: 12px; color: var(--c-muted); flex-wrap: wrap; }
+  .counts i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+  .foot { margin-top: auto; display: flex; justify-content: space-between; font-size: 11px; color: var(--c-muted); }
+  .foot a { color: var(--c-text); font-weight: 600; text-decoration: none; }
+</style>
+</head>
+<body>
+  <div class="widget">
+    <h1>Joint Committee on Housing</h1>
+    <p class="rate">12% <small>compliance rate, 612 bill segments</small></p>
+    <div class="bar" role="img" aria-label="20 with no violation detected, 54 provisional, 538 with a violation detected bill segments">
+      <span style="flex:20;background:var(--c-compliant)"></span>
+      <span style="flex:54;background:var(--c-provisional)"></span>
+      <span style="flex:538;background:var(--c-noncompliant)"></span>
+    </div>
+    <div class="counts">
+      <span><i style="background:var(--c-compliant)"></i>20 compliant</span>
+      <span><i style="background:var(--c-provisional)"></i>54 provisional</span>
+      <span><i style="background:var(--c-noncompliant)"></i>538 with detected violations</span>
+    </div>
+    <div class="counts" style="margin-top:8px">45 detected missed reporting deadlines</div>
+    <div class="foot"><span>Updated Nov 20, 2026</span><a href="index.html?committee=J24" target="_top">Beacon Hill Compliance Tracker</a></div>
+  </div>
+</body>
+</html>

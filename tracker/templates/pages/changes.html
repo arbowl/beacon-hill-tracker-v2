@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Changes | Beacon Hill Compliance Tracker{% endblock %}
+{% block description %}Each release of the software that collects and checks the Tracker's data, newest first.{% endblock %}
+{% block main %}
+<header class="page-head">
+  <p class="kicker">Changes</p>
+  <h1>What has changed</h1>
+  <p class="dek">Each release of the software that collects the public record and checks it against the rules, newest first. A release that can change any finding gets a new major or minor version number; a correction that changes no finding gets a new patch number.</p>
+</header>
+<article class="prose">
+  {% for r in releases %}
+  <section class="release" id="v{{ r.version }}">
+    <h2>Version {{ r.version }}</h2>
+    <p class="release-date">Released {{ r.released_on | day }}{% if r.corrected_at %} &middot; Note corrected {{ r.corrected_at | day }}{% endif %}</p>
+    {% for s in r.sections %}
+    <h3>{{ s.kind | change_kind }}</h3>
+    <ul>
+      {% for item in s.items %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+    {% endfor %}
+  </section>
+  {% else %}
+  <p>No changes have been published yet.</p>
+  {% endfor %}
+  <p>How each finding is produced is explained in the <a href="{{ url_for('pages.methodology') }}">methodology</a>.</p>
+</article>
+{% endblock %}

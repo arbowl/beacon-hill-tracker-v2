@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Check your email | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<div class="narrow">
+  <div class="form-card">
+    <h1>Check your email</h1>
+    <p class="dek">If the address can be used, the Tracker has sent it a link. The link works once and expires in {{ minutes }} minutes.</p>
+    <p class="form-note">Nothing arrived? Check your spam folder, or <a href="{{ url_for('auth.signin') }}">request another link</a>.</p>
+  </div>
+</div>
+{% endblock %}

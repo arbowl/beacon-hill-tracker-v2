@@ -1,0 +1,6 @@
+<div id="status-radios"{% if oob %} hx-swap-oob="true"{% endif %}>
+  <label class="radio"><input type="radio" name="status" value=""{% if not filters.status %} checked{% endif %}> All <span class="count">{{ page.label_counts.values() | sum | number }}</span></label>
+  {% for value, label in status_options %}
+  <label class="radio"><input type="radio" name="status" value="{{ value }}"{% if filters.status == value %} checked{% endif %}> {{ label | label_text }} <span class="count">{{ page.label_counts[label] | number }}</span></label>
+  {% endfor %}
+</div>

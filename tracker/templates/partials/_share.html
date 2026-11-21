@@ -1,0 +1,16 @@
+<div id="share"{% if oob %} hx-swap-oob="true"{% endif %}>
+  <div class="field">
+    <label for="share-url">Share this view</label>
+    <div class="share">
+      <code id="share-url">{{ share_url }}</code>
+      <button type="button" data-copy="share-url">Copy</button>
+    </div>
+  </div>
+  <div class="updated">
+    Last updated
+    <strong>{{ status.as_of | moment }}</strong>
+    {% if selected_committee %}<span>{{ selected_committee.committee_id }} data as of {{ selected_committee.as_of | moment }}</span>{% endif %}
+    Ruleset {{ status.rulesets | join(', ') }}
+  </div>
+  {% if committee_watch %}{% with watch = committee_watch %}{% include "partials/_watch.html" %}{% endwith %}{% endif %}
+</div>

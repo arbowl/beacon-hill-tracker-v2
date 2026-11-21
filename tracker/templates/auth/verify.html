@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Sign in | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<div class="narrow">
+  <div class="form-card">
+    {% if live %}
+    <h1>Finish signing in</h1>
+    <p class="dek">Select the button to sign in on this device.</p>
+    <form method="post" action="{{ url_for('auth.verify_confirm') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="t" value="{{ token }}">
+      <button class="btn primary wide" type="submit">Sign in</button>
+    </form>
+    {% else %}
+    <h1>This link has expired</h1>
+    <p class="dek">Sign-in links work once and expire after {{ minutes }} minutes.</p>
+    <p><a class="btn primary" href="{{ url_for('auth.signin') }}">Request a new link</a></p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

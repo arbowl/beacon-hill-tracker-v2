@@ -1,0 +1,39 @@
+<section id="figures" aria-label="Summary figures" class="scorecard"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% if stats %}
+  <div class="card">
+    <p class="card-label">Compliance rate{% if selected_committee %}, {{ selected_committee.committee_id }}{% endif %}</p>
+    <p class="card-value">{{ '%.1f' | format(stats.compliance_rate) }}<small>%</small></p>
+    <p class="card-sub">Bill segments with no detected violation</p>
+    {% if deltas %}
+    <div class="delta" aria-label="Change in compliance rate">
+      {% for d in deltas %}
+      <div class="{{ d.direction }}">{% if d.direction == 'up' %}&#9650;{% elif d.direction == 'down' %}&#9660;{% else %}&#9654;{% endif %} {{ '%.1f' | format(d.points | abs) }} pts <span class="period">{{ d.period }}</span></div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  <div class="card">
+    {% if selected_committee %}
+    <p class="card-label">Bill segments tracked</p>
+    <p class="card-value">{{ stats.total | number }}</p>
+    <p class="card-sub">in {{ selected_committee.name }}</p>
+    {% else %}
+    <p class="card-label">Bills tracked</p>
+    <p class="card-value">{{ stats.bills_total | number }}</p>
+    <p class="card-sub">in {{ stats.total | number }} bill segments across {{ committees | length }} committees</p>
+    {% endif %}
+  </div>
+  <div class="card">
+    <p class="card-label"><span class="card-marker noncompliant"></span>Detected violations</p>
+    <p class="card-value">{{ stats.non_compliant | number }}</p>
+    <p class="card-sub">bill segments{% if not selected_committee %}, in {{ stats.bills_with_violation | number }} bills{% endif %}</p>
+  </div>
+  <div class="card">
+    <p class="card-label"><span class="card-marker provisional"></span>Provisional</p>
+    <p class="card-value">{{ stats.provisional | number }}</p>
+    <p class="card-sub">bill segments not yet determinable</p>
+  </div>
+  {% else %}
+  <p class="muted">No published data for this selection.</p>
+  {% endif %}
+</section>

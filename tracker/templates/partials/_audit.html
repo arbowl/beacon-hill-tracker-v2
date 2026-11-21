@@ -1,0 +1,62 @@
+<div class="audit-body">
+  {% for req in audit.requirements %}
+  <section class="req">
+    <div class="req-head">
+      <span class="chip {{ req.chip_css }}"><span class="dot"></span><b>{{ req.chip_text }}</b></span>
+      <h4>{{ req.name }}</h4>
+      <div class="req-dates">
+        {% if req.reason %}<span>{{ req.reason }}{% if req.resolves_on %}; resolves <span class="mono">{{ req.resolves_on | day }}</span>{% endif %}</span>{% endif %}
+        {% if req.due %}<span>Due <span class="mono">{{ req.due | day }}</span></span>{% endif %}
+        {% if req.completed_on %}<span>Completed <span class="mono">{{ req.completed_on | day }}</span></span>{% endif %}
+      </div>
+    </div>
+    <p class="req-detail">{{ req.detail }}</p>
+    {% if req.superseded_rule %}<p class="notice">Checked against an earlier version of this rule's text.</p>{% endif %}
+    <div class="req-cols">
+      <div>
+        <h5>How this was decided</h5>
+        {% if req.steps %}
+        <ol class="steps">
+          {% for s in req.steps %}
+          <li{% if s.is_due %} class="k-due"{% endif %}>{% if s.value %}<span class="date">{{ s.value | day }}</span>{% endif %}{{ s.description }}
+            {% if s.cite %} <span class="cite" tabindex="0" data-tip="{{ s.cite.long }}{% if s.cite.superseded %} (earlier text){% endif %}: &quot;{{ s.cite.text | truncate(600) }}&quot;">{{ s.cite.short }}</span>{% endif %}
+            {% if s.role %}<span class="role">{{ s.role }}</span>{% endif %}</li>
+          {% endfor %}
+        </ol>
+        {% else %}<p class="muted">No derivation steps were recorded.</p>{% endif %}
+      </div>
+      <div>
+        <h5>Evidence</h5>
+        {% if req.evidence %}
+        <ul class="evidence">
+          {% for e in req.evidence %}
+          <li><span class="src">{{ e.source | upper }}{% if e.occurred_on %} &middot; {{ e.occurred_on | day }}{% endif %}</span><q>{{ e.text }}</q>{% if e.url %}<a href="{{ e.url }}">{{ e.url | display_url }}</a>{% endif %}</li>
+          {% endfor %}
+        </ul>
+        {% else %}<p class="muted">No evidence records were cited.</p>{% endif %}
+      </div>
+    </div>
+  </section>
+  {% endfor %}
+  {% if audit.history %}
+  <div class="history"><strong>Status history</strong>
+    <ol>
+      {% for h in audit.history %}
+      <li>{{ h.changed_at | day }}: {% if h.to_label is none %}no longer in the committee's data{% elif h.from_label is none %}{{ h.to_label | label_text }} (first published){% else %}{{ h.from_label | label_text }} to {{ h.to_label | label_text }}{% if h.requirements %} ({{ h.requirements | join(', ') }}){% endif %}{% endif %}</li>
+      {% endfor %}
+    </ol>
+  </div>
+  {% endif %}
+  <details class="provenance">
+    <summary>Provenance</summary>
+    <dl>
+      <dt>Ruleset</dt><dd>{{ audit.provenance.ruleset }}</dd>
+      <dt>Evaluated as of</dt><dd>{{ audit.provenance.as_of | moment }}</dd>
+      <dt>Bill segment</dt><dd>{{ audit.provenance.tenure_id }}</dd>
+      <dt>Evaluation run</dt><dd>{{ audit.provenance.evaluation_run_id }}</dd>
+      <dt>Push</dt><dd>{{ audit.provenance.push_id }}</dd>
+      <dt>Input fingerprint</dt><dd>{{ audit.provenance.input_fingerprint }}</dd>
+      <dt>Observations</dt><dd>{% for o in audit.provenance.observations %}{{ o }}{% if not loop.last %}<br>{% endif %}{% endfor %}</dd>
+    </dl>
+  </details>
+</div>

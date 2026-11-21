@@ -1,0 +1,16 @@
+Beacon Hill Compliance Tracker: weekly summary, {{ week_of | day }}
+
+As of {{ status.as_of | moment }}, the Beacon Hill Compliance Tracker follows {{ stats.bills_total | number }} bills in {{ stats.total | number }} bill segments across {{ committees }} committees. A bill segment is one bill as one committee handled it.
+
+No violation detected: {{ stats.compliant | number }} bill segments
+Provisional: {{ stats.provisional | number }} bill segments
+Violation detected: {{ stats.non_compliant | number }} bill segments, in {{ stats.bills_with_violation | number }} bills
+{% if stats.compliance_rate is not none %}Compliance rate: {{ '%.1f' | format(stats.compliance_rate) }}%{% if week %}, {% if week.direction == 'flat' %}unchanged{% else %}{{ week.direction }} {{ '%.1f' | format(week.points | abs) }} points{% endif %} over 7 days{% endif %}
+{% endif %}{% if insights %}
+Highlights
+{% for i in insights %}- {{ i.body }}
+  {{ i.url }}
+{% endfor %}{% endif %}
+Dashboard: {{ dashboard_url }}
+
+{% include "email/_footer.txt" %}

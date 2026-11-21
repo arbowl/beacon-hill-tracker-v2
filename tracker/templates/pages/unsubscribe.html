@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Email preferences | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<div class="narrow">
+  <div class="form-card">
+    {% if not claim %}
+    <h1>This link could not be read</h1>
+    <p class="dek">Copy the whole link from the email, or change your emails on your <a href="{{ url_for('watch.index') }}#preferences">watchlist</a>.</p>
+    {% elif done %}
+    <h1>Unsubscribed</h1>
+    <p class="dek">{{ email }} will no longer get: {{ done | join(', ') }}. This took effect immediately.</p>
+    <p class="form-note">Change your mind? Turn emails back on from your <a href="{{ url_for('watch.index') }}#preferences">watchlist</a>.</p>
+    {% else %}
+    <h1>Unsubscribe</h1>
+    <p class="dek">Stop sending {{ email }}: {{ kinds | join(', ') }}?</p>
+    <form method="post" action="{{ url_for('email.unsubscribe', t=token) }}">
+      <button class="btn primary wide" type="submit">Unsubscribe</button>
+    </form>
+    <form method="post" action="{{ url_for('email.unsubscribe', t=token) }}">
+      <input type="hidden" name="scope" value="all">
+      <p class="form-note"><button class="link-button" type="submit">Turn off all email from the Tracker</button></p>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

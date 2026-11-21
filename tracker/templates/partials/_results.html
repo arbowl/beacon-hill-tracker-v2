@@ -1,0 +1,33 @@
+<div id="results">
+  <div class="list-head">
+    <h2>Bill segments</h2>
+    <div class="meta">
+      {% if page.rows %}Showing {{ page.rows | length | number }} of {{ page.total | number }}{% else %}No bill segments match{% endif %}
+      <label class="visually-hidden" for="sort">Sort by</label>
+      <select id="sort" name="sort" form="filter-form"
+              hx-get="{{ url_for('dashboard.index') }}" hx-include="#filter-form" hx-target="#results" hx-swap="outerHTML" hx-push-url="true">
+        {% for value, text in sort_options %}
+        <option value="{{ value }}"{% if filters.sort == value %} selected{% endif %}>{{ text }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  {% for row in page.rows %}
+    {% include "partials/_segment.html" %}
+  {% else %}
+    <p class="empty">No bill segments match these filters. <a href="{{ url_for('dashboard.index') }}">Reset all</a></p>
+  {% endfor %}
+
+  {% if page.next_cursor or filters.after %}
+  <nav class="pager" aria-label="Pages">
+    {% if filters.after %}
+    <a class="btn small" href="?{{ filters.query_string() }}" hx-get="?{{ filters.query_string() }}" hx-target="#results" hx-swap="outerHTML" hx-push-url="true">First page</a>
+    {% else %}<span></span>{% endif %}
+    {% if page.next_cursor %}
+    {% set next = filters.query_string(after=page.next_cursor) %}
+    <a class="btn small" href="?{{ next }}" hx-get="?{{ next }}" hx-target="#results" hx-swap="outerHTML" hx-push-url="true">Next {{ page_size }}</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+</div>

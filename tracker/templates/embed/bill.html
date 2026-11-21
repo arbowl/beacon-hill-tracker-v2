@@ -1,0 +1,11 @@
+{% extends "embed/_widget.html" %}
+{% block title %}{{ bill_id }} | Beacon Hill Compliance Tracker{% endblock %}
+{% block body %}
+  <h1><span class="mono">{{ bill_id }}</span>{% if title %} {{ title }}{% endif %}</h1>
+  <ul class="segments">
+    {% for s in segments %}{% set lab = s.label | label_view %}
+    <li><span class="committee">{{ s.committee_name }}</span><span class="label {{ lab.css }}">{{ lab.text }}</span></li>
+    {% endfor %}
+  </ul>
+  {% if hidden %}<p class="counts">And {{ hidden }} more committee{{ 's' if hidden != 1 }}</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Privacy | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<header class="page-head">
+  <p class="kicker">Privacy</p>
+  <h1>Privacy</h1>
+  <p class="dek">The Tracker collects as little as it can.</p>
+</header>
+<article class="prose">
+  <h2>Browsing</h2>
+  <p>The site has no advertising, analytics, or third-party trackers. Fonts and scripts are served from this site, so loading a page does not send your address to anyone else. The web server keeps standard request logs (address, time, page requested) for operating and securing the site.</p>
+  <h2>Cookies</h2>
+  <p>The site sets at most two cookies, and only when you use a form or sign in. One protects forms against forged submissions. The other keeps you signed in for 30 days, or until you sign out. Neither is used for tracking.</p>
+  <h2>Accounts</h2>
+  <p>An account holds your email address, the emails you chose to receive, the bills and committees you watch, and when you last signed in. It is used only to send the emails you chose. Your address is not shared or sold.</p>
+  <p>Each request for a sign-in email records the address it was sent to and the network address it came from, to limit abuse. That record is deleted after one day.</p>
+  <h2>The contact form</h2>
+  <p>A message you send is emailed to me and is not stored by the site. The site records the time and network address of each submission for one day, to limit abuse, and then deletes it. I use your email address only to reply.</p>
+  <h2>Questions</h2>
+  <p>Ask through the <a href="{{ url_for('pages.contact') }}">contact form</a>.</p>
+</article>
+{% endblock %}

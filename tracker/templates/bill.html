@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ bill_id }}: {{ title or 'Bill' }} | Beacon Hill Compliance Tracker{% endblock %}
+{% block description %}What the public record shows about how each committee handled {{ bill_id }} under the joint rules.{% endblock %}
+{% block main %}
+<p class="crumbs"><a href="{{ url_for('dashboard.index') }}">Dashboard</a> <span class="muted">/ Bills / {{ bill_id }}</span></p>
+<section class="bill-head">
+  <span class="bill-id">{{ bill_id }} &middot; {{ session | ordinal }} General Court &middot; Filed in the {{ 'House' if bill_id.startswith('H') else 'Senate' }}</span>
+  <h1>{{ title or bill_id }}</h1>
+  <p class="bill-summary">{{ summary }}</p>
+  <div class="actions">
+    {% include "partials/_watch.html" %}
+    <a class="btn" href="{{ segments[0].bill_url }}">View on malegislature.gov</a>
+    <a class="btn" href="{{ url_for('embed.builder', kind='bill', bill=bill_id) }}">Embed</a>
+  </div>
+</section>
+{% set others = segments %}
+{% for row in segments %}
+  {% set audit = audits[row.tenure_id] %}
+  {% include "partials/_segment.html" %}
+{% endfor %}
+{% endblock %}

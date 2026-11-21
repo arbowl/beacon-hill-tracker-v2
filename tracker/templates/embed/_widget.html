@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>{% block title %}Beacon Hill Compliance Tracker{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/embed.css', v=config.TRACKER_BUILD) }}">
+</head>
+<body class="theme-{{ theme }}">
+<div class="widget">
+{% block body %}{% endblock %}
+  <div class="foot">
+    <span>{% if as_of %}Updated {{ as_of | moment }} &middot; {% endif %}<a href="{{ methodology }}" target="_blank" rel="noopener">How detections work</a></span>
+    <a class="brand" href="{{ link }}" target="_blank" rel="noopener">Beacon Hill Compliance Tracker</a>
+  </div>
+</div>
+</body>
+</html>

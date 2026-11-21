@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Embed a widget | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<header class="page-head">
+  <p class="kicker">Embed</p>
+  <h1>Embed a Tracker widget</h1>
+  <p class="dek">Put a committee's or a bill's current record on any site. Widgets are free to use, need no key, and update with the Tracker.</p>
+</header>
+<div class="account">
+  <div>
+    <section class="block">
+      <h2>Your snippet</h2>
+      {% if error %}<div class="form-errors" role="alert">{{ error }}</div>{% endif %}
+      {% if snippet_src %}
+      <div class="snippet" id="embed-code">&lt;iframe src="{{ snippet_src }}" width="{{ width }}" height="{{ height }}" title="Beacon Hill Compliance Tracker" loading="lazy" style="border:0;max-width:100%"&gt;&lt;/iframe&gt;</div>
+      <button class="btn small" type="button" data-copy="embed-code">Copy</button>
+      <h2 class="preview-head">Preview</h2>
+      <iframe class="embed-preview" src="{{ src }}" width="{{ width }}" height="{{ height }}" title="Widget preview"></iframe>
+      {% else %}
+      <p class="empty">Choose a committee or a bill to get a snippet.</p>
+      {% endif %}
+    </section>
+  </div>
+  <div>
+    <section class="block">
+      <h2>Choose</h2>
+      <form method="get" action="{{ url_for('embed.builder') }}">
+        <fieldset class="check-group">
+          <legend>Show</legend>
+          {% for value, text in [('committee', 'A committee'), ('bill', 'A bill')] %}
+          <label class="check"><input type="radio" name="kind" value="{{ value }}"{% if choice.kind == value %} checked{% endif %}><span>{{ text }}</span></label>
+          {% endfor %}
+        </fieldset>
+        <div class="field">
+          <label for="committee">Committee</label>
+          <select class="select" id="committee" name="committee">
+            {% for c in committees %}
+            <option value="{{ c.committee_id }}"{% if c.committee_id == choice.committee %} selected{% endif %}>{{ c.name }} ({{ c.committee_id }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="bill">Bill number</label>
+          <input class="input" id="bill" name="bill" maxlength="20" value="{{ choice.bill }}" placeholder="H10">
+        </div>
+        <div class="field">
+          <label for="theme">Theme</label>
+          <select class="select" id="theme" name="theme">
+            {% for t in themes %}<option value="{{ t }}"{% if t == choice.theme %} selected{% endif %}>{{ t | capitalize }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="size">Size</label>
+          <select class="select" id="size" name="size">
+            {% for s in sizes %}<option value="{{ s }}"{% if s == choice.size %} selected{% endif %}>{{ s | capitalize }}</option>{% endfor %}
+          </select>
+        </div>
+        <button class="btn primary" type="submit">Update snippet</button>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

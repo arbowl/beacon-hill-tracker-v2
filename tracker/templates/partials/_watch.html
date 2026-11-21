@@ -1,0 +1,19 @@
+{# Watch control. Expects watch: WatchButton. #}
+{% if current_user() %}
+<form class="watch" method="post" action="{{ url_for('watch.remove' if watch.watching else 'watch.add') }}"
+      hx-post="{{ url_for('watch.remove' if watch.watching else 'watch.add') }}" hx-swap="outerHTML">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="kind" value="{{ watch.target.kind }}">
+  <input type="hidden" name="session" value="{{ watch.target.session }}">
+  <input type="hidden" name="target_id" value="{{ watch.target.target_id }}">
+  <input type="hidden" name="next" value="{{ watch.next_path }}">
+  {% if watch.watching %}
+  <span class="muted">On <a href="{{ url_for('watch.index') }}">your watchlist</a></span>
+  <button class="btn small" type="submit">Stop watching</button>
+  {% else %}
+  <button class="btn primary" type="submit">{{ watch.text }}</button>
+  {% endif %}
+</form>
+{% else %}
+<a class="btn primary watch" href="{{ url_for('auth.signin', next=watch.next_path) }}">{{ watch.text }}</a>
+{% endif %}

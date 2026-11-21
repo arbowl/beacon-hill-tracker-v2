@@ -1,0 +1,12 @@
+Beacon Hill Compliance Tracker: updates on {{ total }} bill segment{{ 's' if total != 1 }} you watch
+
+What changed on the bills and committees you watch since the last email.
+{% for s in segments %}
+{{ s.bill_id }}{% if s.title %}: {{ s.title }}{% endif %}
+{{ s.committee_name }} ({{ s.committee_id }})
+{% for line in s.lines %}  {{ line }}
+{% endfor %}  {{ s.url }}
+{% endfor %}{% if hidden %}
+And {{ hidden }} more. Your watchlist has the full list: {{ links.preferences }}
+{% endif %}
+{% include "email/_footer.txt" %}

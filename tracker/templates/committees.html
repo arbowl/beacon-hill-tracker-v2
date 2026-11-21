@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Committees | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<header class="page-head">
+  <h1>Committees</h1>
+  <p class="dek">Every committee with published data, in alphabetical order. Counts are bill segments. The determined measure leaves provisional segments out; it is the figure the committee range on the dashboard plots.</p>
+</header>
+<div class="table-scroll">
+  <table class="data-table">
+    <thead><tr>
+      <th>Committee</th><th class="num">Bill segments</th><th class="num">No violation detected</th><th class="num">Provisional</th><th class="num">Violation detected</th><th class="num">Share with no detected violation</th><th class="num">Share of determined with every requirement met</th><th>Data as of</th>
+    </tr></thead>
+    <tbody>
+      {% for c in rows %}
+      <tr>
+        <td><a href="{{ url_for('dashboard.index', committee=c.committee_id) }}">{{ c.name }}</a> <span class="muted mono">{{ c.committee_id }}</span></td>
+        <td class="num">{{ c.total | number }}</td>
+        <td class="num">{{ c.compliant | number }}</td>
+        <td class="num">{{ c.provisional | number }}</td>
+        <td class="num">{{ c.non_compliant | number }}</td>
+        <td class="num">{{ '%.1f' | format(c.compliance_rate) }}%</td>
+        <td class="num">{% if c.decided_rate is not none %}{{ '%.1f' | format(c.decided_rate) }}%{% else %}<span class="muted">none determined</span>{% endif %}</td>
+        <td>{{ c.as_of | moment }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

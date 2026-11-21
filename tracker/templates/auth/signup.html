@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Create an account | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<div class="narrow">
+  <form class="form-card" method="post" action="{{ url_for('auth.signup') }}">
+    <h1>Create an account</h1>
+    <p class="dek">Watch bills and committees and get alerts when something changes. There is no password: the Tracker emails you a sign-in link.</p>
+    {% include "auth/_errors.html" %}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="email">Email address</label>
+      <input class="input" id="email" name="email" type="email" autocomplete="email" required maxlength="320" value="{{ email }}" placeholder="you@example.org">
+    </div>
+    {% for legend, items in groups %}
+    <fieldset class="check-group">
+      <legend>{{ legend }}</legend>
+      {% for kind, text, note in items %}
+      <label class="check"><input type="checkbox" name="email_kind" value="{{ kind }}"{% if kind in checked %} checked{% endif %}><span>{{ text }}{% if note %}<small>{{ note }}</small>{% endif %}</span></label>
+      {% endfor %}
+    </fieldset>
+    {% endfor %}
+    <div class="field hp" aria-hidden="true">
+      <label for="website">Leave this empty</label>
+      <input id="website" name="website" tabindex="-1" autocomplete="off">
+    </div>
+    <button class="btn primary wide" type="submit"{% if not available %} disabled{% endif %}>Email me a sign-in link</button>
+    <p class="form-note">Already have an account? <a href="{{ url_for('auth.signin') }}">Sign in</a>. You can change these choices any time on your watchlist.</p>
+  </form>
+</div>
+{% endblock %}

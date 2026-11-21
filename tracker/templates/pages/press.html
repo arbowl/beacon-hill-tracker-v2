@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Press | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<header class="page-head">
+  <p class="kicker">Press</p>
+  <h1>For reporters and researchers</h1>
+  <p class="dek">You are welcome to cite the Tracker's figures. A few notes help keep them accurate in print.</p>
+</header>
+<article class="prose">
+  <h2>Citing the data</h2>
+  <ul>
+    <li>Name the source as the Beacon Hill Compliance Tracker, and give the date of the data. The date of each committee's data is on the <a href="{{ url_for('dashboard.committees') }}">committee table</a>.</li>
+    <li>Describe findings as detected violations, or as cases where the public record does not show a requirement being met. The Tracker does not establish that a committee broke a rule, or why.</li>
+    <li>Most figures count bill segments: one bill as one committee saw it. A bill referred to two committees counts twice. The <a href="{{ url_for('pages.methodology') }}#terms">methodology</a> explains the difference.</li>
+    <li>Every dashboard view has a shareable link. Linking to the exact view you used lets readers check the figure.</li>
+  </ul>
+  <h2>Questions</h2>
+  <p>I am happy to walk through how a figure was produced, or to check a specific bill before publication. Use the <a href="{{ url_for('pages.contact') }}">contact form</a> and mention your deadline.</p>
+</article>
+{% endblock %}

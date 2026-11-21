@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ error.code }} | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<header class="page-head">
+  <p class="kicker">Error {{ error.code }}</p>
+  <h1>{% if error.code == 404 %}Page not found{% elif error.code == 400 %}That request could not be read{% else %}Something went wrong{% endif %}</h1>
+  <p class="dek">{% if error.code == 400 %}{{ error.description }}{% elif error.code == 404 %}The page may have moved, or the bill may not be tracked.{% else %}Please try again shortly.{% endif %}</p>
+  <p><a href="{{ url_for('dashboard.index') }}">Go to the dashboard</a></p>
+</header>
+{% endblock %}

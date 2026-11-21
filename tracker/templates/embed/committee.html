@@ -1,0 +1,15 @@
+{% extends "embed/_widget.html" %}
+{% block title %}{{ name }} | Beacon Hill Compliance Tracker{% endblock %}
+{% block body %}
+  <h1>{{ name }}</h1>
+  <p class="rate">{% if stats.compliance_rate is not none %}{{ '%.1f' | format(stats.compliance_rate) }}%{% else %}-{% endif %} <small>compliance rate, {{ stats.total | number }} bill segments</small></p>
+  <svg class="bar" viewBox="0 0 100 10" preserveAspectRatio="none" role="img" aria-label="{{ stats.compliant | number }} with no violation detected, {{ stats.provisional | number }} provisional, {{ stats.non_compliant | number }} with a violation detected">
+    {% for p in bar %}{% if p.width %}<rect class="{{ p.css }}" x="{{ p.x }}" y="0" width="{{ p.width }}" height="10"/>{% endif %}{% endfor %}
+  </svg>
+  <p class="counts">
+    <span><i class="compliant"></i>{{ stats.compliant | number }} no violation detected</span>
+    <span><i class="provisional"></i>{{ stats.provisional | number }} provisional</span>
+    <span><i class="noncompliant"></i>{{ stats.non_compliant | number }} violation detected</span>
+  </p>
+  <p class="counts">Not shown in the record: hearing notice {{ stats.hearing_notice_unmet | number }}, summary {{ stats.summary_unmet | number }}, vote {{ stats.votes_unmet | number }}, reported out {{ stats.report_out_unmet | number }}</p>
+{% endblock %}

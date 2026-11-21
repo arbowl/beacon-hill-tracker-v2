@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Your watchlist | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<header class="page-head">
+  <h1>Your watchlist</h1>
+  <div class="dek">Signed in as {{ user.email }}.
+    <form class="inline-form" method="post" action="{{ url_for('auth.signout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="link-button" type="submit">Sign out</button>
+    </form>
+    &middot;
+    <form class="inline-form" method="post" action="{{ url_for('auth.signout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="everywhere" value="1">
+      <button class="link-button" type="submit">Sign out everywhere</button>
+    </form>
+  </div>
+</header>
+
+<div class="account">
+  <div>
+    <section class="block">
+      <h2>Watching</h2>
+      <p class="dek">Alerts for each item, newest first. New watches start with your email preferences.</p>
+      {% for message in get_flashed_messages() %}<p class="saved" role="status">{{ message }}</p>{% endfor %}
+      {% if watches %}
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>Current</th><th>Alerts</th><th></th></tr></thead>
+          <tbody>
+            {% for w in watches %}
+            <tr>
+              {% if w.kind == 'bill' %}
+              <td><a class="mono" href="{{ url_for('bills.bill', session=w.session, bill_id=w.target_id) }}">{{ w.target_id }}</a><br>
+                <span class="muted watch-sub">{% if w.segments %}{{ w.title or 'Bill' }}, {{ w.segments | length }} segment{{ 's' if w.segments | length != 1 }}{% else %}No longer in the published data{% endif %}</span></td>
+              <td><div class="watch-labels">{% for s in w.segments or [] %}{% set lab = s.label | label_view %}<span class="label {{ lab.css }}">{{ s.committee_id }}: {{ lab.text }}</span>{% endfor %}</div></td>
+              {% else %}
+              <td><a href="{{ url_for('dashboard.index', committee=w.target_id) }}">{{ w.committee_name or w.target_id }} ({{ w.target_id }})</a><br>
+                <span class="muted watch-sub">{% if w.total is not none %}Committee, {{ w.total | number }} bill segments{% else %}No longer in the published data{% endif %}</span></td>
+              <td>{% if w.compliance_rate is not none %}<span class="mono">{{ '%.1f' | format(w.compliance_rate) }}%</span> <span class="muted watch-sub">compliance rate</span>{% endif %}</td>
+              {% endif %}
+              <td>
+                <form class="toggles" method="post" action="{{ url_for('watch.alerts', watch_id=w.id) }}"
+                      hx-post="{{ url_for('watch.alerts', watch_id=w.id) }}" hx-trigger="change" hx-swap="none">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  {% for kind, text in alert_kinds %}
+                  <label><input type="checkbox" name="alert" value="{{ kind }}"{% if kind in w.alerts %} checked{% endif %}> {{ text }}</label>
+                  {% endfor %}
+                  <noscript><button class="btn small" type="submit">Save</button></noscript>
+                </form>
+              </td>
+              <td>
+                <form class="inline-form" method="post" action="{{ url_for('watch.remove') }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="kind" value="{{ w.kind }}">
+                  <input type="hidden" name="session" value="{{ w.session }}">
+                  <input type="hidden" name="target_id" value="{{ w.target_id }}">
+                  <input type="hidden" name="next" value="{{ url_for('watch.index') }}">
+                  <button class="link-button" type="submit">Remove</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="empty">Nothing watched yet. Use "Watch this bill" on a bill page, or "Watch this committee" after choosing a committee on the <a href="{{ url_for('dashboard.index') }}">dashboard</a>.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <div>
+    <section class="block">
+      <h2>Embed a Tracker widget</h2>
+      <p class="dek">Free to use on any site. No key needed.</p>
+      <a class="btn small" href="{{ url_for('embed.builder') }}">Open the embed builder</a>
+    </section>
+
+    <section class="block" id="preferences">
+      <h2>Email preferences</h2>
+      <p class="dek">Turning off an alert type here stops it for every watch.</p>
+      <form method="post" action="{{ url_for('watch.preferences') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% for legend, items in groups %}
+        <fieldset class="check-group">
+          <legend>{{ legend }}</legend>
+          {% for kind, text, note in items %}
+          <label class="check"><input type="checkbox" name="email_kind" value="{{ kind }}"{% if kind in enabled %} checked{% endif %}><span>{{ text }}{% if note %}<small>{{ note }}</small>{% endif %}</span></label>
+          {% endfor %}
+        </fieldset>
+        {% endfor %}
+        <button class="btn small" type="submit">Save</button>
+      </form>
+    </section>
+
+    <section class="block" id="downloads">
+      <h2>Data downloads</h2>
+      <p class="dek">The full current dataset, rebuilt after every update. Column meanings are in the <a href="{{ url_for('pages.methodology') }}#data">Methodology</a>.</p>
+      {% for d in downloads %}
+      <div class="download">
+        <div>current.{{ d.format }}<small>{% if d.format == 'csv.gz' %}One row per bill segment{% else %}With audit trails and rule text{% endif %} &middot; {{ d.size | file_size }}</small><small class="mono">sha256 {{ d.sha256 }}</small></div>
+        <a class="btn small" href="{{ url_for('watch.download', fmt=d.format) }}" download>Download</a>
+      </div>
+      {% else %}
+      <p class="empty">No download is available yet.</p>
+      {% endfor %}
+      {% if downloads %}<p class="form-note">As of {{ downloads[0].as_of | moment }}</p>{% endif %}
+    </section>
+
+    <section class="block" id="api-keys">
+      <h2>API keys</h2>
+      <p class="dek">For the read-only <a href="{{ url_for('api.openapi_document') }}">JSON API</a>. Send the key as <code>Authorization: Bearer &lt;key&gt;</code>. 60 requests per minute per key.</p>
+      {% if new_key %}
+      <div class="notice" role="status">
+        <p>Copy this key now. It is not stored and will not be shown again.</p>
+        <div class="share"><code id="new-key">{{ new_key.secret }}</code><button type="button" data-copy="new-key">Copy</button></div>
+      </div>
+      {% endif %}
+      {% if key_error %}<div class="form-errors" role="alert">{{ key_error }}</div>{% endif %}
+      {% if api_keys %}
+      <table class="data-table">
+        <tbody>
+          {% for k in api_keys %}
+          <tr>
+            <td>{{ k.name }}<br><span class="mono muted watch-sub">{{ k.prefix }}...</span></td>
+            <td class="muted watch-sub">{% if k.last_used_at %}Used {{ k.last_used_at | moment }}{% else %}Not used yet{% endif %}</td>
+            <td>
+              <form class="inline-form" method="post" action="{{ url_for('watch.revoke_key', key_id=k.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="link-button" type="submit">Revoke</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+      <form class="key-form" method="post" action="{{ url_for('watch.create_key') }}#api-keys">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="key-name" class="visually-hidden">Key name</label>
+        <input class="input" id="key-name" name="name" maxlength="80" required placeholder="What the key is for">
+        <button class="btn small" type="submit">Create key</button>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

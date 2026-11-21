@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Methodology | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<header class="page-head">
+  <p class="kicker">Methodology</p>
+  <h1>How the Tracker works</h1>
+  <p class="dek">Every finding on this site comes from public pages on malegislature.gov, is checked against the verbatim text of the Legislature's own rules, and links back to the evidence it relied on. The Tracker reports what the public record shows; it does not grade or rank anyone.</p>
+</header>
+
+<div class="with-toc">
+  <nav class="toc" aria-label="On this page">
+    <ol>
+      <li><a href="#terms">Bills and bill segments</a></li>
+      <li><a href="#requirements">The four requirements</a></li>
+      <li><a href="#labels">Labels and rates</a></li>
+      <li><a href="#provisional">Why "provisional"</a></li>
+      <li><a href="#charts">Reading the charts</a></li>
+      <li><a href="#limits">Limits</a></li>
+      <li><a href="#sources">Sources and updates</a></li>
+      <li><a href="#data">Data downloads</a></li>
+      <li><a href="#rules">Rule text</a></li>
+    </ol>
+  </nav>
+
+  <article class="prose">
+    <h2 id="terms">Bills and bill segments</h2>
+    <p>A <strong>bill</strong> is a single numbered piece of legislation, such as H10. A <strong>bill segment</strong> is that bill as one committee saw it. When H10 is referred to the Judiciary and later to House Ways and Means, it has two segments, and each committee's segment is checked separately.</p>
+    <p>Most figures on the dashboard count bill segments. When the Tracker says a number of <em>bills</em> were affected, each bill is counted once, no matter how many of its segments had a detected violation.</p>
+    <p>Sometimes a bill appears on a committee's list but the bill history does not show it being referred there. The Tracker lists that segment as Provisional, with the note "referral not found in the bill history", and checks no requirements for it until the referral appears.</p>
+
+    <h2 id="requirements">The four requirements</h2>
+    <table>
+      <thead><tr><th>Requirement</th><th>What the Tracker checks</th><th>Rules</th></tr></thead>
+      <tbody>
+        <tr><td>Hearing notice</td><td>The hearing was announced at least 10 days in advance.</td><td>JR 1D, SR 12, HR 17A</td></tr>
+        <tr><td>Summary</td><td>A plain-language summary of the bill was posted.</td><td>JR 1B</td></tr>
+        <tr><td>Vote</td><td>The committee's vote on the bill was posted.</td><td>JR 1D, HR 17B</td></tr>
+        <tr><td>Reported out</td><td>The committee reported the bill by its deadline.</td><td>JR 10, HR 27</td></tr>
+      </tbody>
+    </table>
+    <p>A requirement applies only once the event that triggers it has happened. A bill that has not had a hearing has no hearing-notice requirement yet, so it shows <em>Not applicable</em> for it.</p>
+
+    <h2 id="labels">Labels and rates</h2>
+    <p>Each bill segment gets one of three labels. <strong>No violation detected</strong>: every requirement that applies is detected as met. <strong>Violation detected</strong>: the Tracker detected at least one violation. <strong>Provisional</strong>: anything else, such as a deadline that has not arrived.</p>
+    <p>Each requirement on a segment is shown as <strong>Met</strong>, <strong>Pending</strong> (not yet determinable, for example because the deadline has not arrived), <strong>Not shown</strong> (the public record does not show the requirement being met, which the Tracker counts as a detected violation), or <strong>Not applicable</strong>.</p>
+    <p>A detected violation means the public record does not show the requirement being met. It may reflect a gap in what was posted online rather than in what the committee did.</p>
+    <p>The headline compliance rate is the share of segments with no detected violation: those labeled No violation detected plus those labeled Provisional, divided by all segments. Data files and URLs use the short names Compliant, Provisional, and Non-Compliant for the three labels.</p>
+
+    <h2 id="provisional">Why "provisional"</h2>
+    <p>A requirement is pending when its deadline has not arrived, when the timing is ambiguous, when the data needed is missing, or when a document needs review. Pending items are not counted as violations. Each one says why it is pending in its audit trail.</p>
+
+    <h2 id="charts">Reading the charts</h2>
+    <p>The <strong>attrition funnel</strong> follows bill segments through the requirements in the order a bill meets them. Each stage counts the segments with every requirement so far either met or not yet applicable. Because a requirement that has not applied counts as passed, a committee that has heard few bills shows little drop at the hearing-notice stage. The last stage equals the number of segments with no violation detected.</p>
+    <p>The <strong>range across committees</strong> uses a stricter measure: the share of <em>determined</em> segments with every applicable requirement met, leaving provisional segments out. It is drawn as one unnamed dot per committee, to show how widely the figures vary without singling any committee out. Names appear on hover and in the <a href="{{ url_for('dashboard.committees') }}">committee table</a>. Committees with fewer than 20 determined segments are not drawn.</p>
+    <p>The <strong>change figures</strong> on the compliance rate compare it with the most recent update at least 24 hours and at least 7 days earlier.</p>
+
+    <h2 id="limits">Limits</h2>
+    <ul>
+      <li>The Tracker sees only what malegislature.gov publishes. A document posted somewhere else, or posted and later removed, may not be found.</li>
+      <li>When a search for a document comes up empty, the audit trail says whether every source was checked or the search was incomplete. An incomplete search is not proof of absence.</li>
+      <li>Rule interpretations are the Tracker's. Each derivation step cites the rule text it relied on, so the reasoning can be checked and disputed.</li>
+      <li>Nothing on this site is a legal finding, and none of it states or implies why a requirement was or was not met.</li>
+    </ul>
+
+    <h2 id="sources">Sources and updates</h2>
+    <p>The Tracker reads bill histories, hearing pages, and committee documents on malegislature.gov. Every page it reads is stored, so any finding can be re-checked against exactly what the site said at the time. The data is updated once a day, usually overnight; the date of each committee's data is on the <a href="{{ url_for('dashboard.committees') }}">committee table</a>.</p>
+    <p>Every change to how the Tracker collects and checks the record is listed on the <a href="{{ url_for('changes.index') }}">changes page</a>, with the date it took effect.</p>
+    <p>If you think a finding is wrong, please <a href="{{ url_for('pages.contact') }}">tell me</a>, with the bill number and committee.</p>
+
+    <h2 id="data">Data downloads</h2>
+    <p>Signed-in readers can download the full current dataset from their watchlist. Both files are rebuilt after every update, and each is listed with its sha256 so a copy can be checked.</p>
+    <p><code>current.csv.gz</code> has one row per bill segment. Its columns use the Tracker's internal names, which map to the labels on this site as follows:</p>
+    <table>
+      <thead><tr><th>In the file</th><th>On the site</th></tr></thead>
+      <tbody>
+        <tr><td><code>label</code>: Compliant, Provisional, Non-Compliant</td><td>No violation detected, Provisional, Violation detected</td></tr>
+        <tr><td><code>*_status</code>: Met, Provisional, Unmet, or empty</td><td>Met, Pending, Not shown, Not applicable</td></tr>
+        <tr><td><code>*_reason</code>: not_yet_due, ambiguous_timing, missing_data, awaiting_review</td><td>Why a requirement is pending</td></tr>
+        <tr><td><code>hearing_notice_*</code>, <code>summary_posted_*</code>, <code>votes_posted_*</code>, <code>report_out_deadline_*</code></td><td>Hearing notice, Summary, Vote, Reported out</td></tr>
+        <tr><td><code>referral_observed</code></td><td>false when the referral was not found in the bill history</td></tr>
+        <tr><td><code>data_as_of</code>, <code>evaluation_run_id</code>, <code>ruleset_id</code>, <code>ruleset_version</code></td><td>When and how the committee's data was evaluated</td></tr>
+      </tbody>
+    </table>
+    <p><code>current.json.gz</code> has every committee's complete record in the format the Tracker publishes: each bill segment's results with their derivation steps, evidence, and the verbatim rule text they cite.</p>
+
+    <h2 id="rules">Rule text</h2>
+    <p>These are the rule paragraphs the current findings cite, verbatim as the Tracker last read them.</p>
+    {% for c in clauses %}
+    <h3 id="rule-{{ c.source | lower }}-{{ c.rule | lower }}-{{ c.paragraph or 0 }}">{{ c.label }}</h3>
+    <blockquote>{{ c.text }}</blockquote>
+    {% else %}
+    <p class="muted">No rule text has been published yet.</p>
+    {% endfor %}
+  </article>
+</div>
+{% endblock %}

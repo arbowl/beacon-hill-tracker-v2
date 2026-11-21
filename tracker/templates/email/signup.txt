@@ -1,0 +1,7 @@
+Confirm your Beacon Hill Compliance Tracker account
+
+Use this link to confirm your address and create your account on the Beacon Hill Compliance Tracker:
+
+{{ url }}
+
+The link works once and expires in {{ minutes }} minutes. No account is created until it is used. If you did not ask for an account, you can ignore this email.

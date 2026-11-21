@@ -1,0 +1,5 @@
+--
+A detection reflects what was posted online, which may differ from what a committee did. How the Tracker reaches each finding: {{ links.methodology }}
+
+Change which emails you get: {{ links.preferences }}
+Unsubscribe from these emails: {{ links.unsubscribe }}

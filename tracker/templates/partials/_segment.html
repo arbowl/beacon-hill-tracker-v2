@@ -1,0 +1,38 @@
+{# One bill segment row. Expects row, page.other_segments or others; audit for an expanded trail. #}
+{% set bill_url = url_for('bills.bill', session=row.session, bill_id=row.bill_id) %}
+{% set others = (page.other_segments[row.bill_id] if page is defined else others) | rejectattr('tenure_id', 'equalto', row.tenure_id) | list %}
+{% set lab = row.label | label_view %}
+<article class="seg" id="seg-{{ row.committee_id | lower }}">
+  <div class="seg-main">
+    <a class="seg-id" href="{{ bill_url }}">{{ row.bill_id }}</a>
+    <div>
+      <h3 class="seg-title"><a href="{{ bill_url }}">{{ row.title or row.bill_id }}</a></h3>
+      <p class="seg-meta">{{ row.committee_name }} ({{ row.committee_id }}) &middot;
+        {% if row.referral_observed %}referred {{ row.referred_on | day }}{% else %}referral not found in the bill history{% endif %}
+        {% if others %} &middot; also referred to {% for o in others %}<a href="{{ bill_url }}#seg-{{ o.committee_id | lower }}">{{ o.committee_name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}
+        &middot; <a class="ext" href="{{ row.bill_url }}">malegislature.gov</a></p>
+      {% if row.referral_observed %}
+      <div class="chips">
+        {% for chip in row | chips %}
+        <span class="chip {{ chip.css }}" tabindex="0" data-tip="{{ chip.tip }}"><span class="dot"></span>{{ chip.prefix }}: <b>{{ chip.text }}</b></span>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="seg-note">{{ row.tenure_observed_detail }}. Requirements are checked once the referral appears in the bill history.</p>
+      {% endif %}
+    </div>
+    <span class="label {{ lab.css }}">{{ lab.text }}</span>
+  </div>
+  {% if audit %}
+  <details class="audit" open>
+    <summary>Audit trail</summary>
+    {% include "partials/_audit.html" %}
+  </details>
+  {% else %}
+  <details class="audit" hx-get="{{ url_for('bills.audit', session=row.session, bill_id=row.bill_id, tenure=row.tenure_id) }}"
+           hx-trigger="toggle once" hx-target="find .audit-slot" hx-swap="outerHTML">
+    <summary>Audit trail</summary>
+    <div class="audit-slot"><p class="audit-fallback"><a href="{{ bill_url }}#seg-{{ row.committee_id | lower }}">Open the audit trail on the bill page</a></p></div>
+  </details>
+  {% endif %}
+</article>

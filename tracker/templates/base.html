@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="htmx-config" content='{"includeIndicatorStyles": false, "allowEval": false, "allowScriptTags": false, "attributesToSettle": ["class"]}'>
+<title>{% block title %}Beacon Hill Compliance Tracker{% endblock %}</title>
+<meta name="description" content="{% block description %}Detected violations of the Massachusetts Legislature's joint rules on hearing notice, summaries, votes, and reporting deadlines, bill by bill.{% endblock %}">
+<link rel="preload" href="{{ url_for('static', filename='fonts/inter-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ url_for('static', filename='fonts/merriweather-latin-700-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/site.css', v=config.TRACKER_BUILD) }}">
+<script src="{{ url_for('static', filename='js/htmx.min.js', v=config.TRACKER_BUILD) }}" defer></script>
+{% block scripts %}{% endblock %}
+<script src="{{ url_for('static', filename='js/site.js', v=config.TRACKER_BUILD) }}" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="wordmark" href="{{ url_for('dashboard.index') }}">Beacon Hill Compliance Tracker</a>
+    <nav class="nav" aria-label="Main">
+      {% for endpoint, text in [('dashboard.index', 'Dashboard'), ('pages.methodology', 'Methodology'), ('pages.about', 'About'), ('pages.contact', 'Contact')] %}
+      <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} aria-current="page"{% endif %}>{{ text }}</a>
+      {% endfor %}
+      {% if current_user() %}
+      <a class="nav-account" href="{{ url_for('watch.index') }}"{% if request.endpoint == 'watch.index' %} aria-current="page"{% endif %}>Watchlist</a>
+      {% else %}
+      <a class="nav-account" href="{{ url_for('auth.signin') }}"{% if request.endpoint in ('auth.signin', 'auth.signup') %} aria-current="page"{% endif %}>Sign In</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+<main class="container" id="main">
+{% block main %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <nav aria-label="Footer">
+      {% for endpoint, text in [('pages.about', 'About'), ('pages.methodology', 'Methodology'), ('pages.press', 'Press'), ('changes.index', 'Changes'), ('pages.privacy', 'Privacy'), ('pages.terms', 'Terms')] %}
+      <a href="{{ url_for(endpoint) }}">{{ text }}</a>
+      {% endfor %}
+    </nav>
+    {% set status = site_status() %}
+    {% if status %}
+    <span>Data as of {{ status.as_of | moment }} &middot; <a href="{{ url_for('changes.index') }}">Ruleset {{ status.rulesets | join(', ') }}</a></span>
+    {% endif %}
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}About | Beacon Hill Compliance Tracker{% endblock %}
+{% block main %}
+<header class="page-head">
+  <p class="kicker">About</p>
+  <h1>About the Tracker</h1>
+  <p class="dek">The Beacon Hill Compliance Tracker puts the public record of how Massachusetts legislative committees follow the joint rules in one place, so anyone can look at it and draw their own conclusions.</p>
+</header>
+<article class="prose">
+  <h2>What it does</h2>
+  <p>The joint rules of the Massachusetts General Court require committees to give notice of hearings, post bill summaries, post their votes, and report bills out by a deadline. The Tracker checks each bill each committee handles against those four requirements, using only what is published on malegislature.gov, and shows its work: every finding links to the rule text and the evidence behind it.</p>
+  <h2>What it does not do</h2>
+  <p>The Tracker does not grade, rank, or endorse anyone, and it takes no position on any bill. A detected violation means the public record does not show a requirement being met; it is not an accusation, and it may reflect a gap in what was posted rather than in what a committee did. The <a href="{{ url_for('pages.methodology') }}">methodology</a> explains how each finding is reached and where the method has limits.</p>
+  <h2>Who runs it</h2>
+  <p>I run the Tracker on my own. I am not affiliated with the Legislature, any campaign, or any advocacy group. If you have a correction, a question, or a use for the data, please <a href="{{ url_for('pages.contact') }}">get in touch</a>.</p>
+</article>
+{% endblock %}

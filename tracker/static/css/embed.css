@@ -1,0 +1,29 @@
+:root { --bg: #ffffff; --text: #1c1917; --muted: #57534e; --rule: #e7e5e4; --compliant: #166534; --provisional: #d97706; --noncompliant: #991b1b; --tint-compliant: #dcfce7; --tint-provisional: #fef3c7; --tint-noncompliant: #fee2e2; }
+.theme-dark { --bg: #1c1917; --text: #fafaf9; --muted: #a8a29e; --rule: #44403c; --compliant: #4ade80; --provisional: #fbbf24; --noncompliant: #f87171; --tint-compliant: #14532d; --tint-provisional: #78350f; --tint-noncompliant: #7f1d1d; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; }
+a { color: inherit; }
+.widget { height: 100%; border: 1px solid var(--rule); border-top: 3px solid var(--text); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+h1 { font: 700 15px/1.3 Georgia, serif; margin: 0; }
+.mono { font-family: ui-monospace, monospace; }
+p { margin: 0; }
+.rate { font-size: 30px; font-weight: 600; line-height: 1.1; }
+.rate small { font-size: 13px; font-weight: 400; color: var(--muted); }
+.bar { display: block; width: 100%; height: 10px; }
+.bar .compliant { fill: var(--compliant); }
+.bar .provisional { fill: var(--provisional); }
+.bar .noncompliant { fill: var(--noncompliant); }
+.counts { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); }
+.counts i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+.counts i.compliant { background: var(--compliant); }
+.counts i.provisional { background: var(--provisional); }
+.counts i.noncompliant { background: var(--noncompliant); }
+.segments { list-style: none; margin: 4px 0 0; padding: 0; }
+.segments li { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--rule); font-size: 13px; }
+.label { flex: none; font-size: 12px; font-weight: 600; padding: 1px 6px; border-radius: 3px; }
+.label.compliant { background: var(--tint-compliant); color: var(--compliant); }
+.label.provisional { background: var(--tint-provisional); color: var(--provisional); }
+.label.noncompliant { background: var(--tint-noncompliant); color: var(--noncompliant); }
+.foot { margin-top: auto; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
+.foot .brand { color: var(--text); font-weight: 600; text-decoration: none; }
