@@ -59,12 +59,19 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; line-height: 1.25
 .site-header .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 64px; flex-wrap: wrap; }
 .wordmark { font-family: var(--font-serif); font-weight: 900; font-size: 20px; color: var(--c-text); text-decoration: none; letter-spacing: -.01em; }
 .wordmark span { color: var(--c-muted); font-weight: 400; }
-.nav { display: flex; gap: 4px; flex-wrap: wrap; }
-.nav a { color: var(--c-text); text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 12px; border-bottom: 2px solid transparent; }
+.nav { display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto; }
+.nav a, .nav-account { color: var(--c-text); text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 12px; border-bottom: 2px solid transparent; }
 .nav a:hover { border-bottom-color: var(--c-rule); }
 .nav a[aria-current="page"] { border-bottom-color: var(--c-text); }
-.nav .nav-account { border: 1px solid var(--c-text); border-radius: 3px; margin-left: 8px; }
-.nav .nav-account:hover { background: var(--c-text); color: var(--c-surface); }
+.nav-account { border: 1px solid var(--c-text); border-radius: 3px; white-space: nowrap; }
+.nav-account:hover { background: var(--c-text); color: var(--c-surface); }
+@media (max-width: 720px) {
+  .site-header .container { gap: 8px 16px; padding-top: 12px; padding-bottom: 4px; }
+  .wordmark { flex: 1; min-width: 0; }
+  .nav-account { order: 2; }
+  .nav { order: 3; flex-basis: 100%; margin-left: -8px; gap: 0; }
+  .nav a { padding: 8px; }
+}
 
 .site-footer { border-top: 1px solid var(--c-rule); margin-top: 64px; padding: 32px 0 48px; font-size: 13px; color: var(--c-muted); }
 .site-footer .container { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }

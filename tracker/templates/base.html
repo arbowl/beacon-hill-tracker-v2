@@ -23,12 +23,12 @@
       {% for endpoint, text in [('dashboard.index', 'Dashboard'), ('pages.methodology', 'Methodology'), ('pages.about', 'About'), ('pages.contact', 'Contact')] %}
       <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} aria-current="page"{% endif %}>{{ text }}</a>
       {% endfor %}
-      {% if current_user() %}
-      <a class="nav-account" href="{{ url_for('watch.index') }}"{% if request.endpoint == 'watch.index' %} aria-current="page"{% endif %}>Watchlist</a>
-      {% else %}
-      <a class="nav-account" href="{{ url_for('auth.signin') }}"{% if request.endpoint in ('auth.signin', 'auth.signup') %} aria-current="page"{% endif %}>Sign In</a>
-      {% endif %}
     </nav>
+    {% if current_user() %}
+    <a class="nav-account" href="{{ url_for('watch.index') }}"{% if request.endpoint == 'watch.index' %} aria-current="page"{% endif %}>Watchlist</a>
+    {% else %}
+    <a class="nav-account" href="{{ url_for('auth.signin') }}"{% if request.endpoint in ('auth.signin', 'auth.signup') %} aria-current="page"{% endif %}>Sign In</a>
+    {% endif %}
   </div>
 </header>
 
