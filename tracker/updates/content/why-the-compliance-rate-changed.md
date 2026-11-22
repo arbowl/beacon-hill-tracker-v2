@@ -37,7 +37,7 @@ Many House and Senate committee bills never get a hearing or a vote. The old too
 
 I think that's the right call. A bill nobody has acted on doesn't show that a committee followed the rules, and letting thousands of them count as passing hid the results that do. The new Tracker still marks 2,473 segments Provisional, almost all because the data needed to judge them isn't available yet.
 
-## Why the new number is more accurate
+## Why the new number is more defensible
 - **Every result includes provenance:** Each segment links to the evidence it relied on and the rule text it applied. If a classification is wrong, you can see exactly why. This has made it easier to scrutinize and fix edge cases.
 - **Complete coverage:** Every bill before every tracked committee is checked, beyond what was discoverable before, due to better bill collecting algorithms developed in the past few weeks.
 - **Fixes apply retroactively:** When I correct a rule, past classifications are re-evaluated for every bill, making sure rules are applied evenly. Every bill has now passed through the updated ruleset.
