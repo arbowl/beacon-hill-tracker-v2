@@ -6,6 +6,7 @@ summary = "The new algorithm reports a lower compliance rate than the old site. 
 +++
 
 _Posted on November 22, 2026 at 9:12 AM._
+
 _Updated at November 22, 2026 at 1:02 PM._
 
 When the new Tracker launched, the headline compliance rate fell from about 52% on the old site to 37.6%. That's a big swing, and anyone who cited the old number deserves an explanation.
