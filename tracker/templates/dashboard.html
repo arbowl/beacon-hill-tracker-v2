@@ -5,11 +5,12 @@
   <p class="kicker">{{ session | ordinal }} General Court</p>
   <h1>Is Beacon Hill Following Its Own Rules?</h1>
   <p class="lede">The Massachusetts Legislature is bound by joint rules to announce hearings in advance, post summaries and votes, and act within set deadlines. The Tracker scans the public record every day to see if they are.</p>
-  {% if notice %}
-  <p class="notice"><strong>Methods updated</strong>{{ notice.released_on | long_day }} &middot; version {{ notice.version }} <a href="{{ url_for('changes.index') }}#v{{ notice.version }}">What changed</a></p>
-  {% endif %}
-  {% if update %}
-  <p class="notice"><strong>New update</strong>{{ update.meta.published | long_day }} &middot; {{ update.meta.title }} <a href="{{ url_for('updates.show', slug=update.slug) }}">Read</a></p>
+  {% if notices %}
+  <ul class="notices">
+    {% for n in notices %}
+    <li><strong>{{ n.label }}</strong><time datetime="{{ n.day.isoformat() }}">{{ n.day | long_day }}</time><a href="{{ n.href }}">{{ n.text }}</a></li>
+    {% endfor %}
+  </ul>
   {% endif %}
 </section>
 

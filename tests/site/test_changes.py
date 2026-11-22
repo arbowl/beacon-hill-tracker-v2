@@ -89,8 +89,8 @@ def test_refusals(client: FlaskClient, pusher: Pusher):
 
 def _notice(client: FlaskClient) -> str | None:
     html = client.get("/").get_data(as_text=True)
-    start = html.find('class="notice"')
-    return html[start : html.index("</p>", start)] if start >= 0 else None
+    start = html.find("<strong>Methods update<")
+    return html[start : html.index("</li>", start)] if start >= 0 else None
 
 
 def test_dashboard_notice(client: FlaskClient, pusher: Pusher, published: None):

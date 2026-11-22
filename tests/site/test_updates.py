@@ -9,6 +9,8 @@ from flask import Flask
 from flask.testing import FlaskClient
 
 from tests.conftest import Pusher, bundle_dict
+from tracker.changes.queries import ShownRelease
+from tracker.dashboard.routes import _hero_notices
 from tracker.display import LEGISLATURE_TZ
 from tracker.updates import posts
 
@@ -144,10 +146,21 @@ def test_dashboard_notice_only_while_recent(
     pusher.push({"J19": bundle_dict("J19")})
     _install(app, tmp_path, _post("fresh", "Fresh post", published=TODAY - timedelta(days=1)))
     first = client.get("/")
-    assert "New update</strong>" in first.get_data(as_text=True)
-    assert 'href="/updates/fresh">Read</a>' in first.get_data(as_text=True)
+    assert "Site update</strong>" in first.get_data(as_text=True)
+    assert 'href="/updates/fresh">Fresh post</a>' in first.get_data(as_text=True)
     stale = TODAY - timedelta(days=posts.NOTICE_DAYS)
     (tmp_path / "fresh.md").unlink()
     _install(app, tmp_path, _post("stale", "Stale post", published=stale))
     second = client.get("/", headers={"If-None-Match": first.headers["ETag"]})
-    assert second.status_code == 200 and "New update" not in second.get_data(as_text=True)
+    assert second.status_code == 200 and "Site update" not in second.get_data(as_text=True)
+
+
+def test_hero_notices_are_oldest_first(app: Flask):
+    update = posts.parse(*_post("post", "Post", published=TODAY))
+    with app.test_request_context():
+        for gap, labels in (
+            (1, ["Methods update", "Site update"]),
+            (-1, ["Site update", "Methods update"]),
+        ):
+            release = ShownRelease("2.0.0", "h", TODAY - timedelta(days=gap), (), None)
+            assert [n.label for n in _hero_notices(release, update)] == labels
