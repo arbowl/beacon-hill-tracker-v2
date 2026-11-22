@@ -14,9 +14,8 @@ On November 21, 2026, I released a major update for the Beacon Hill Compliance T
 
 ## What's different?
 - Each bill now carries an in-depth audit trail connecting the evidence and the rule text to the final classification.
-- The new algorithm focuses on **Joint Committees**, resulting in fewer "Provisional" classifications. (House and Senate committees are not bound by Joint Rules, the main transparency benchmarking tool of the project.)
-  - As a result, the share of bill segments with no violation detected dropped from about 52% to about 20%. **This is a difference in measurement and grouping, not a sweeping reclassification across the board.** The ratio of complete bill segment classifications remains similar, with any changes noted in [the changelog](/changes).
 - Old accounts have been retired; their only feature was saving views. Saving views is now a default feature, and accounts may download datasets, generate API keys, and create watchlists.
+- Historical data is stored separately from classifications, so improvements to the ruleset can be retroactively applied to correct misclassifications in old data.
 
 ## What's NOT different?
 - The core mission of the Tracker as a non-partisan data source remains the same.
