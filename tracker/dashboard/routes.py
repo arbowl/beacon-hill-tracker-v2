@@ -22,6 +22,7 @@ from tracker.dashboard.filters import PAGE_SIZE, SORT_TEXT, DashboardFilters
 from tracker.db import pool
 from tracker.display import LABEL_FILTER, LEGISLATURE_TZ
 from tracker.enums import WatchKind
+from tracker.updates import posts
 from tracker.watch.button import watch_button
 from tracker.web import site_status
 
@@ -66,9 +67,11 @@ def index() -> Response:
     status = site_status()
     if status is None:
         return make_response(render_template("empty.html"))
+    today = datetime.now(LEGISLATURE_TZ).date()
     with pool().connection() as conn:
-        notice = changes.notice(conn, datetime.now(LEGISLATURE_TZ).date())
-    notice_key = notice.content_hash if notice else ""
+        notice = changes.notice(conn, today)
+    update = posts.recent(today)
+    notice_key = f"{notice.content_hash if notice else ''}|{update.slug if update else ''}"
     etag, fresh = _cached(status.as_of, f"{filters.query_string(after=filters.after)}|{notice_key}")
     if fresh:
         return Response(status=304, headers={"ETag": f'"{etag}"'})
@@ -100,6 +103,7 @@ def index() -> Response:
                 "SELECT * FROM insights WHERE session = %s ORDER BY position", (session,)
             ).fetchall(),
             notice=notice,
+            update=update,
             committee_watch=watch_button(WatchKind.COMMITTEE, session, filters.committee)
             if filters.committee
             else None,

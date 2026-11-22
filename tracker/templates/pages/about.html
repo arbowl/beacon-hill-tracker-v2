@@ -15,5 +15,7 @@
   <h2>Who runs it</h2>
   <p>My name is Drew Bowler. I build and run the Tracker on my own, as an independent project. It receives no funding and has no sponsors. Outside the Tracker I take part in civic advocacy, but the Tracker itself is not affiliated with the Legislature, any campaign, or any advocacy group, and its findings come only from the public record checked against the rules as written.</p>
   <p>The Tracker's <a href="https://github.com/arbowl/beacon-hill-compliance-tracker-v2/">source code is public</a>, so anyone can check how it reaches its findings. If you have a correction, a question, or a use for the data, please <a href="{{ url_for('pages.contact') }}">get in touch</a>.</p>
+  {% set latest = latest_update() %}
+  <p>I post announcements and longer analysis on the <a href="{{ url_for('updates.index') }}">updates page</a>{% if latest %}. The latest is <a href="{{ url_for('updates.show', slug=latest.slug) }}">{{ latest.meta.title }}</a>, posted {{ latest.meta.published | long_day }}{% endif %}.</p>
 </article>
 {% endblock %}

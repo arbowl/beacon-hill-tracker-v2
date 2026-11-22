@@ -21,6 +21,7 @@ from tracker.auth.keys import create_key
 from tracker.config import Settings
 from tracker.db import Connection, connect, migrate
 from tracker.enums import KeyScope, UserRole
+from tracker.updates import posts
 
 ADMIN_URL = os.environ.get(
     "TRACKER_TEST_ADMIN_URL", "postgresql://tracker:tracker@127.0.0.1:54329/tracker"
@@ -78,6 +79,7 @@ def db(settings: Settings) -> Iterator[Connection]:
 def app(settings: Settings, db: Connection) -> Iterator[Flask]:
     app = create_app(settings)
     app.config["TESTING"] = True
+    posts.install(app, ())
     yield app
     app.extensions["tracker.pool"].close()
 

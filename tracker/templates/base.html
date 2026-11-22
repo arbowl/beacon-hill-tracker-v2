@@ -39,7 +39,7 @@
 <footer class="site-footer">
   <div class="container">
     <nav aria-label="Footer">
-      {% for endpoint, text in [('pages.about', 'About'), ('pages.methodology', 'Methodology'), ('pages.press', 'Press'), ('changes.index', 'Changes'), ('pages.privacy', 'Privacy'), ('pages.terms', 'Terms')] %}
+      {% for endpoint, text in [('pages.about', 'About'), ('pages.methodology', 'Methodology'), ('pages.press', 'Press'), ('updates.index', 'Updates'), ('changes.index', 'Changes'), ('pages.privacy', 'Privacy'), ('pages.terms', 'Terms')] %}
       <a href="{{ url_for(endpoint) }}">{{ text }}</a>
       {% endfor %}
     </nav>

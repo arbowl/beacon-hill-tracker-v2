@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ update.meta.title }} | Beacon Hill Compliance Tracker{% endblock %}
+{% block description %}{{ update.meta.summary }}{% endblock %}
+{% block main %}
+<header class="page-head">
+  <p class="kicker"><a href="{{ url_for('updates.index', category=update.meta.category.value) }}">{{ update.meta.category | category_text }}</a></p>
+  <h1>{{ update.meta.title }}</h1>
+  <p class="dek">{{ update.meta.summary }}</p>
+  <p class="update-meta">Posted <time datetime="{{ update.meta.published.isoformat() }}">{{ update.meta.published | long_day }}</time>{% if update.meta.updated %} &middot; Updated <time datetime="{{ update.meta.updated.isoformat() }}">{{ update.meta.updated | long_day }}</time>{% endif %}</p>
+</header>
+<article class="prose">
+  {% if update.meta.url %}
+  <p class="update-link">Read the coverage at <a href="{{ update.meta.url }}" rel="external noopener">{{ update.meta.source }}</a>.</p>
+  {% endif %}
+  {{ update.html }}
+  <p class="update-back"><a href="{{ url_for('updates.index') }}">All updates</a></p>
+</article>
+{% endblock %}

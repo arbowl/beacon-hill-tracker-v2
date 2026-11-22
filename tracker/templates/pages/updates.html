@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Updates | Beacon Hill Compliance Tracker{% endblock %}
+{% block description %}Announcements, press coverage, and longer analysis from the person who runs the Beacon Hill Compliance Tracker.{% endblock %}
+{% block main %}
+<header class="page-head">
+  <p class="kicker">Updates</p>
+  <h1>Updates</h1>
+  <p class="dek">Announcements about the Tracker, coverage of it in the news, and longer analysis of what the public record shows.</p>
+</header>
+{% if total %}
+<form class="update-filters" action="{{ url_for('updates.index') }}" method="get" role="search"
+      hx-get="{{ url_for('updates.index') }}" hx-target="#updates-list" hx-swap="outerHTML"
+      hx-trigger="change, input changed delay:300ms from:#q, submit">
+  <div class="field">
+    <label for="q">Search</label>
+    <input class="input" id="q" name="q" type="search" value="{{ filters.q }}" maxlength="100" autocomplete="off">
+  </div>
+  <fieldset class="field">
+    <legend>Category</legend>
+    <div class="pills">
+      <label class="pill"><input type="radio" name="category" value=""{% if not filters.category %} checked{% endif %}> All</label>
+      {% for value, text in categories %}
+      <label class="pill"><input type="radio" name="category" value="{{ value }}"{% if filters.category == value %} checked{% endif %}> {{ text }}</label>
+      {% endfor %}
+    </div>
+  </fieldset>
+  <div class="field">
+    <label for="sort">Order</label>
+    <select class="select" id="sort" name="sort">
+      {% for value, text in sort_options %}
+      <option value="{{ value }}"{% if filters.sort == value %} selected{% endif %}>{{ text }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <noscript><button class="btn small" type="submit">Apply</button></noscript>
+</form>
+{% endif %}
+{% include "partials/_updates_list.html" %}
+{% endblock %}
