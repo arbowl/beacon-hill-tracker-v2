@@ -42,6 +42,11 @@ def _summary(segments: list[dict[str, Any]]) -> str:
     return f"This bill has {noun}: {body}."
 
 
+_OWED_NOTHING_SUMMARY = (
+    "No referral of this bill owes anything under the rules tracked here, so it has no status."
+)
+
+
 @bp.get("/<int:session>/<bill_id>")
 def bill(session: int, bill_id: str) -> Response | str:
     canonical = normalize_bill_id(bill_id)
@@ -53,16 +58,20 @@ def bill(session: int, bill_id: str) -> Response | str:
         abort(404)
     with pool().connection() as conn:
         segments = queries.bill_segments(conn, session, bill_id)
-        if not segments:
+        owed_nothing = queries.bill_owed_nothing(conn, session, bill_id)
+        if not segments and not owed_nothing:
             abort(404)
         audits = {s["tenure_id"]: queries.audit(conn, session, s["tenure_id"]) for s in segments}
+    first = segments[0] if segments else owed_nothing[0]
     return render_template(
         "bill.html",
         session=session,
         bill_id=bill_id,
-        title=segments[0]["title"],
-        summary=_summary(segments),
+        title=first["title"],
+        bill_url=first["bill_url"],
+        summary=_summary(segments) if segments else _OWED_NOTHING_SUMMARY,
         segments=segments,
+        owed_nothing=owed_nothing,
         audits=audits,
         watch=watch_button(WatchKind.BILL, session, bill_id),
     )

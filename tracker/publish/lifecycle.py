@@ -81,7 +81,7 @@ def prune(conn: Connection, keep_publications: int, abandon_after_hours: int) ->
             (keep_publications,),
         ).fetchall()
         pairs = [(t["run_id"], t["committee_id"]) for t in targets]
-        for table in ("tenures", "run_bills", "committee_outputs"):
+        for table in ("tenures", "run_bills", "committee_outputs", "no_requirement_tenures"):
             conn.cursor().executemany(
                 f"DELETE FROM {table} WHERE run_id = %s AND committee_id = %s", pairs
             )

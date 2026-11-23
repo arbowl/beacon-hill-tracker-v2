@@ -79,6 +79,11 @@ class ComplianceLabel(StrEnum):
     PROVISIONAL = "Provisional"
 
 
+class NoRequirementsReason(StrEnum):
+    NONE_APPLY = "none_apply"
+    NONE_YET = "none_yet"
+
+
 class StepRole(StrEnum):
     TRIGGER = "trigger"
     BASE_DUE = "base_due"
@@ -292,6 +297,43 @@ class Tenure(_Model):
         return self
 
 
+class NoRequirements(_Model):
+    """A tenure that owed nothing as of the bundle's as_of: it has no label and counts
+    toward no rate. awaiting names the requirements that will arise when the committee
+    acts; reason is none_yet if and only if it is non-empty.
+    """
+
+    tenure_id: Text
+    bill_id: BillId
+    committee_id: CommitteeId
+    referred_on: date
+    reason: NoRequirementsReason
+    awaiting: tuple[RequirementId, ...] = ()
+
+    @property
+    def session(self) -> int:
+        match = _TENURE_ID.match(self.tenure_id)
+        assert match is not None
+        return int(match["session"])
+
+    @model_validator(mode="after")
+    def _consistent(self) -> Self:
+        match = _TENURE_ID.match(self.tenure_id)
+        if match is None:
+            raise ValueError(f"malformed tenure_id {self.tenure_id!r}")
+        if (match["bill"], match["committee"]) != (self.bill_id, self.committee_id):
+            raise ValueError("tenure_id does not match bill_id and committee_id")
+        if match["referral"] != self.referred_on.isoformat():
+            raise ValueError("tenure_id does not match referred_on")
+        if dupes := _duplicates(self.awaiting):
+            raise ValueError(f"awaiting repeated: {dupes}")
+        if RequirementId.TENURE_OBSERVED in self.awaiting:
+            raise ValueError("tenure_observed cannot be awaited")
+        if (self.reason == NoRequirementsReason.NONE_YET) != bool(self.awaiting):
+            raise ValueError("reason is none_yet if and only if a requirement is awaited")
+        return self
+
+
 class CommitteeOutput(_Model):
     """A document the committee produced, with the bills it came from."""
 
@@ -315,6 +357,7 @@ class CommitteeBundle(_Model):
     tenures: tuple[Tenure, ...]
     clauses: tuple[Clause, ...]
     committee_output: tuple[CommitteeOutput, ...] = ()
+    no_requirements: tuple[NoRequirements, ...] = ()
 
     @model_validator(mode="after")
     def _consistent(self) -> Self:
@@ -324,7 +367,10 @@ class CommitteeBundle(_Model):
         allowed = allowed | {RequirementId.TENURE_OBSERVED}
         for field, values in (
             ("bills", [b.bill_id for b in self.bills]),
-            ("tenures", [t.tenure_id for t in self.tenures]),
+            (
+                "tenures",
+                [t.tenure_id for t in self.tenures] + [n.tenure_id for n in self.no_requirements],
+            ),
             ("clauses", [c.text_hash for c in self.clauses]),
         ):
             if dupes := _duplicates(values):
@@ -340,7 +386,13 @@ class CommitteeBundle(_Model):
                 for c in r.clauses:
                     if clause_refs.get(c.text_hash) != c.ref:
                         raise ValueError(f"{t.tenure_id} cites a clause missing from clauses")
-        referenced = {t.bill_id for t in self.tenures}
+        for n in self.no_requirements:
+            if n.committee_id != committee_id or n.session != self.session:
+                raise ValueError(f"{n.tenure_id} is not a {self.session}/{committee_id} tenure")
+            for awaited in n.awaiting:
+                if awaited not in allowed:
+                    raise ValueError(f"{awaited} is not in ruleset {self.ruleset_id}")
+        referenced = {t.bill_id for t in self.tenures} | {n.bill_id for n in self.no_requirements}
         listed = {b.bill_id for b in self.bills}
         if referenced != listed:
             raise ValueError(

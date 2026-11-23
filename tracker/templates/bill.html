@@ -9,7 +9,7 @@
   <p class="bill-summary">{{ summary }}</p>
   <div class="actions">
     {% include "partials/_watch.html" %}
-    <a class="btn" href="{{ segments[0].bill_url }}">View on malegislature.gov</a>
+    <a class="btn" href="{{ bill_url }}">View on malegislature.gov</a>
     <a class="btn" href="{{ url_for('embed.builder', kind='bill', bill=bill_id) }}">Embed</a>
   </div>
 </section>
@@ -17,5 +17,8 @@
 {% for row in segments %}
   {% set audit = audits[row.tenure_id] %}
   {% include "partials/_segment.html" %}
+{% endfor %}
+{% for row in owed_nothing %}
+  {% include "partials/_owed_nothing.html" %}
 {% endfor %}
 {% endblock %}

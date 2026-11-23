@@ -8,6 +8,7 @@ from beacon_contract.v1 import (
     ChangeKind,
     ComplianceLabel,
     EvidenceSource,
+    NoRequirementsReason,
     ProvisionalReason,
     RequirementId,
     RequirementStatus,
@@ -90,6 +91,21 @@ REASON_TEXT = {
     ProvisionalReason.MISSING_DATA: "Data needed is missing",
     ProvisionalReason.AWAITING_REVIEW: "Awaiting review",
 }
+
+NO_REQUIREMENTS_TEXT = {
+    NoRequirementsReason.NONE_APPLY: "None of the rules tracked here applies to this referral.",
+    NoRequirementsReason.NONE_YET: "Nothing is owed yet.",
+}
+
+
+def owed_nothing_note(row: dict) -> str:
+    """Why a referral carries no status, and what it will owe once the committee acts."""
+    text = NO_REQUIREMENTS_TEXT[NoRequirementsReason(row["reason"])]
+    if row["awaiting"]:
+        names = ", ".join(REQUIREMENT_TEXT[RequirementId(a)].lower() for a in row["awaiting"])
+        text += f" A {names} record will be due once the committee reports."
+    return text
+
 
 ROLE_TEXT = {
     StepRole.TRIGGER: "Trigger",

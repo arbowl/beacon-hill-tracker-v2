@@ -79,6 +79,7 @@ def register(app: Flask) -> None:
     app.add_template_filter(display.day, "day")
     app.add_template_filter(display.long_day, "long_day")
     app.add_template_filter(display.number, "number")
+    app.add_template_filter(display.owed_nothing_note, "owed_nothing_note")
     app.add_template_filter(display.file_size, "file_size")
     app.add_template_filter(_ordinal, "ordinal")
     app.add_template_filter(_display_url, "display_url")

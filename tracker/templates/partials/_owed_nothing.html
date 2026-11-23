@@ -1,0 +1,12 @@
+{# A referral that owed nothing: no label, no audit trail, counted nowhere. Expects row. #}
+<article class="seg seg-quiet" id="seg-{{ row.committee_id | lower }}">
+  <div class="seg-main">
+    <span class="seg-id">{{ row.committee_id }}</span>
+    <div>
+      <h3 class="seg-title">{{ row.committee_name }}</h3>
+      <p class="seg-meta">Referred {{ row.referred_on | day }}</p>
+      <p class="seg-note">{{ row | owed_nothing_note }}</p>
+    </div>
+    <span class="label quiet">No applicable requirements</span>
+  </div>
+</article>

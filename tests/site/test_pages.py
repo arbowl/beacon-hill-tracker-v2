@@ -8,6 +8,7 @@ from flask.testing import FlaskClient
 
 from tests.conftest import Pusher, bundle_dict
 from tracker.db import Connection
+from tracker.publish import dumps
 
 
 @pytest.fixture
@@ -206,3 +207,50 @@ def test_documents_served_under_site_csp(client: FlaskClient):
     assert "max-age=86400" in pdf.headers["Cache-Control"]
     assert client.get("/documents/../config.py").status_code == 404
     assert client.get("/documents/nope.pdf").status_code == 404
+
+
+def _with_owed_nothing() -> dict:
+    bundle = bundle_dict("J45")
+    bundle["bills"].append(
+        {
+            "bill_id": "H9999",
+            "title": "An Act owing nothing",
+            "url": "https://malegislature.gov/Bills/194/H9999",
+        }
+    )
+    bundle["no_requirements"] = [
+        {
+            "tenure_id": "194/H9999:J45:2025-03-01",
+            "bill_id": "H9999",
+            "committee_id": "J45",
+            "referred_on": "2025-03-01",
+            "reason": "none_yet",
+            "awaiting": ["votes_posted"],
+        }
+    ]
+    return bundle
+
+
+def test_referral_owing_nothing_shows_without_a_status(
+    client: FlaskClient, pusher: Pusher, db: Connection
+):
+    pusher.push({"J45": bundle_dict("J45")})
+    before = db.execute("SELECT * FROM committee_stats WHERE committee_id = 'J45'").fetchone()
+    run_id = pusher.push({"J45": _with_owed_nothing()})
+
+    after = db.execute("SELECT * FROM committee_stats WHERE committee_id = 'J45'").fetchone()
+    for column in ("total", "compliant", "provisional", "non_compliant", "compliance_rate"):
+        assert after[column] == before[column], column
+    html = _text(client, "/bills/194/H9999")
+    assert "No applicable requirements" in html
+    assert "Nothing is owed yet. A vote record will be due once the committee reports." in html
+    assert "has no status" in html
+    assert "1 more referral to this committee owes nothing" in _text(client, "/?committee=J45")
+
+    rebuilt = dumps.bundle(db, run_id, "J45")
+    (item,) = rebuilt.no_requirements
+    assert (item.tenure_id, item.reason.value, [a.value for a in item.awaiting]) == (
+        "194/H9999:J45:2025-03-01",
+        "none_yet",
+        ["votes_posted"],
+    )

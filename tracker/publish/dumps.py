@@ -114,6 +114,12 @@ def bundle(conn: Connection, run_id: UUID, committee_id: str) -> v1.CommitteeBun
         " ORDER BY substring(bill_id FROM 2)::int, bill_id",
         key,
     ).fetchall()
+    owed_nothing = conn.execute(
+        "SELECT tenure_id, bill_id, committee_id, referred_on, reason, awaiting"
+        " FROM no_requirement_tenures WHERE run_id = %s AND committee_id = %s"
+        " ORDER BY substring(bill_id FROM 2)::int, bill_id, tenure_id",
+        key,
+    ).fetchall()
     return v1.CommitteeBundle.model_validate(
         {
             "schema_version": v1.SCHEMA_VERSION,
@@ -132,6 +138,7 @@ def bundle(conn: Connection, run_id: UUID, committee_id: str) -> v1.CommitteeBun
             "tenures": records.tenure_dicts(conn, run_id, committee_id),
             "clauses": records.cited_clause_dicts(conn, run_id, committee_id),
             "committee_output": outputs,
+            "no_requirements": owed_nothing,
         }
     )
 

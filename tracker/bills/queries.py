@@ -101,6 +101,34 @@ def bill_segments(conn: Connection, session: int, bill_id: str) -> list[dict[str
     ).fetchall()
 
 
+def bill_owed_nothing(conn: Connection, session: int, bill_id: str) -> list[dict[str, Any]]:
+    """Live referrals of the bill that owed nothing; they have no label."""
+    return conn.execute(
+        "SELECT n.tenure_id, n.committee_id, rc.name AS committee_name, n.referred_on,"
+        " n.reason, n.awaiting, b.title, b.url AS bill_url"
+        " FROM committee_current cc"
+        " JOIN run_committees rc ON rc.run_id = cc.run_id AND rc.committee_id = cc.committee_id"
+        " JOIN no_requirement_tenures n"
+        "   ON n.run_id = cc.run_id AND n.committee_id = cc.committee_id"
+        " JOIN run_bills b ON b.run_id = n.run_id AND b.committee_id = n.committee_id"
+        "                 AND b.bill_id = n.bill_id"
+        " WHERE cc.session = %s AND n.bill_id = %s ORDER BY n.referred_on, n.committee_id",
+        (session, bill_id),
+    ).fetchall()
+
+
+def committee_owed_nothing(conn: Connection, session: int, committee_id: str) -> dict[str, int]:
+    """How many live referrals to the committee owed nothing, by reason."""
+    rows = conn.execute(
+        "SELECT n.reason, count(*) AS n FROM committee_current cc"
+        " JOIN no_requirement_tenures n"
+        "   ON n.run_id = cc.run_id AND n.committee_id = cc.committee_id"
+        " WHERE cc.session = %s AND cc.committee_id = %s GROUP BY n.reason",
+        (session, committee_id),
+    ).fetchall()
+    return {r["reason"]: r["n"] for r in rows}
+
+
 def _clauses(conn: Connection, hashes: set[str]) -> tuple[dict[str, dict], set[str]]:
     """Cited clause rows by hash, and the hashes no longer the latest text for their rule."""
     rows = conn.execute("SELECT * FROM clauses WHERE text_hash = ANY(%s)", (list(hashes),))

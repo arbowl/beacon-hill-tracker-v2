@@ -215,6 +215,7 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; line-height: 1.25
 .label.compliant { background: var(--c-compliant); }
 .label.provisional { background: var(--c-provisional-ink); }
 .label.noncompliant { background: var(--c-noncompliant); }
+.label.quiet { background: transparent; color: var(--c-muted); border: 1px solid var(--c-rule); }
 
 /* Tooltips */
 [data-tip] { position: relative; }

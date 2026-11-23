@@ -19,6 +19,7 @@ from pydantic import ValidationError
 
 from beacon_contract.v1 import ComplianceLabel
 from tracker.auth.current import current_user
+from tracker.bills import queries as bill_queries
 from tracker.changes import queries as changes
 from tracker.changes.queries import ShownRelease
 from tracker.dashboard import figures, queries
@@ -145,6 +146,9 @@ def index() -> Response:
                 "SELECT * FROM insights WHERE session = %s ORDER BY position", (session,)
             ).fetchall(),
             notices=_hero_notices(notice, update),
+            owed_nothing=bill_queries.committee_owed_nothing(conn, session, filters.committee_id)
+            if filters.committee_id
+            else {},
             committee_watch=watch_button(WatchKind.COMMITTEE, session, filters.committee_id)
             if filters.committee_id
             else None,
