@@ -57,7 +57,7 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; line-height: 1.25
 /* Header and footer */
 .site-header { background: var(--c-surface); border-bottom: 3px solid var(--c-rule-strong); }
 .site-header .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 64px; flex-wrap: wrap; }
-.wordmark { font-family: var(--font-serif); font-weight: 900; font-size: 20px; color: var(--c-text); text-decoration: none; letter-spacing: -.01em; }
+.wordmark { font-family: var(--font-serif); font-weight: 900; font-size: clamp(15px, 4.6vw, 20px); white-space: nowrap; color: var(--c-text); text-decoration: none; letter-spacing: -.01em; }
 .wordmark span { color: var(--c-muted); font-weight: 400; }
 .nav { display: flex; gap: 4px; flex-wrap: wrap; }
 .nav a { color: var(--c-text); text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 12px; border-bottom: 2px solid transparent; }
