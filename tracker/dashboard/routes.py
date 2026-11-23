@@ -1,7 +1,8 @@
 """Dashboard and committee table."""
 
 import hashlib
-from datetime import UTC, datetime
+from dataclasses import dataclass
+from datetime import UTC, date, datetime
 
 from flask import (
     Blueprint,
@@ -11,17 +12,20 @@ from flask import (
     make_response,
     render_template,
     request,
+    url_for,
 )
 from pydantic import ValidationError
 
 from beacon_contract.v1 import ComplianceLabel
 from tracker.auth.current import current_user
 from tracker.changes import queries as changes
+from tracker.changes.queries import ShownRelease
 from tracker.dashboard import figures, queries
 from tracker.dashboard.filters import PAGE_SIZE, SORT_TEXT, DashboardFilters
 from tracker.db import pool
 from tracker.display import LABEL_FILTER, LEGISLATURE_TZ
 from tracker.enums import WatchKind
+from tracker.updates import posts
 from tracker.watch.button import watch_button
 from tracker.web import site_status
 
@@ -35,6 +39,27 @@ STATUS_OPTIONS = [
         ComplianceLabel.NON_COMPLIANT,
     )
 ]
+
+
+@dataclass(frozen=True)
+class HeroNotice:
+    label: str
+    day: date
+    text: str
+    href: str
+
+
+def _hero_notices(release: ShownRelease | None, update: posts.Update | None) -> list[HeroNotice]:
+    """Recent methods release and site update, oldest first."""
+    found = []
+    if release is not None:
+        href = url_for("changes.index", _anchor=f"v{release.version}")
+        text = f"What changed in version {release.version}"
+        found.append(HeroNotice("Methods update", release.released_on, text, href))
+    if update is not None:
+        href = url_for("updates.show", slug=update.slug)
+        found.append(HeroNotice("Site update", update.meta.published, update.meta.title, href))
+    return sorted(found, key=lambda n: n.day)
 
 
 def _cached(as_of: datetime, key: str) -> tuple[str, bool]:
@@ -66,9 +91,11 @@ def index() -> Response:
     status = site_status()
     if status is None:
         return make_response(render_template("empty.html"))
+    today = datetime.now(LEGISLATURE_TZ).date()
     with pool().connection() as conn:
-        notice = changes.notice(conn, datetime.now(LEGISLATURE_TZ).date())
-    notice_key = notice.content_hash if notice else ""
+        notice = changes.notice(conn, today)
+    update = posts.recent(today)
+    notice_key = f"{notice.content_hash if notice else ''}|{update.slug if update else ''}"
     etag, fresh = _cached(status.as_of, f"{filters.query_string(after=filters.after)}|{notice_key}")
     if fresh:
         return Response(status=304, headers={"ETag": f'"{etag}"'})
@@ -77,7 +104,6 @@ def index() -> Response:
         committee_rows = queries.committees(conn, session)
         selected = next((c for c in committee_rows if c["committee_id"] == filters.committee), None)
         stats = queries.stats(conn, session, filters.committee)
-        session_stats = stats if not filters.committee else queries.stats(conn, session, None)
         page = queries.segment_page(conn, session, filters)
         context = dict(
             filters=filters,
@@ -85,7 +111,6 @@ def index() -> Response:
             status=status,
             session=session,
             stats=stats,
-            session_stats=session_stats,
             committees=committee_rows,
             selected_committee=selected,
             deltas=figures.deltas(
@@ -101,7 +126,7 @@ def index() -> Response:
             insights=conn.execute(
                 "SELECT * FROM insights WHERE session = %s ORDER BY position", (session,)
             ).fetchall(),
-            notice=notice,
+            notices=_hero_notices(notice, update),
             committee_watch=watch_button(WatchKind.COMMITTEE, session, filters.committee)
             if filters.committee
             else None,

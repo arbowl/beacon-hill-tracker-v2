@@ -13,6 +13,7 @@ from tracker.auth.current import current_user, here
 from tracker.dashboard.queries import SiteStatus
 from tracker.dashboard.queries import site_status as query_site_status
 from tracker.db import pool
+from tracker.updates import posts
 
 
 def content_security_policy(frame_ancestors: str = "'none'") -> str:
@@ -73,15 +74,17 @@ def register(app: Flask) -> None:
     app.add_template_global(site_status)
     app.add_template_global(current_user)
     app.add_template_global(here)
+    app.add_template_global(posts.latest, "latest_update")
     app.add_template_filter(display.moment, "moment")
     app.add_template_filter(display.day, "day")
+    app.add_template_filter(display.long_day, "long_day")
     app.add_template_filter(display.number, "number")
     app.add_template_filter(display.file_size, "file_size")
-    app.add_template_filter(display.rounded_down_thousands, "thousands_plus")
     app.add_template_filter(_ordinal, "ordinal")
     app.add_template_filter(_display_url, "display_url")
     app.add_template_filter(lambda v: display.LABEL_TEXT[ComplianceLabel(v)], "label_text")
     app.add_template_filter(display.CHANGE_KIND_TEXT.__getitem__, "change_kind")
+    app.add_template_filter(posts.CATEGORY_TEXT.__getitem__, "category_text")
     app.add_template_filter(segments.label, "label_view")
     app.add_template_filter(segments.chips, "chips")
     app.after_request(_security_headers)

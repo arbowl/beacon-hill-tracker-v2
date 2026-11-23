@@ -41,6 +41,7 @@ the repository root, where `.env` is read. Environment variables override `.env`
 | `LOGIN_LIMIT_PER_EMAIL`, `LOGIN_LIMIT_PER_IP_PER_HOUR` | `3`, `20` | Sign-in email requests allowed per address per 15 minutes, and per network per hour |
 | `RETAIN_DETAIL_PUBLICATIONS` | `2` | Publications per committee whose full detail is kept; also the rollback depth |
 | `ABANDON_OPEN_RUNS_AFTER_HOURS` | `48` | Unpublished pushes older than this are discarded |
+| `RETAIN_DUMPS_RECENT`, `RETAIN_DUMPS_MONTHLY` | `30`, `true` | Downloads kept per session and format: the newest builds, plus the first build of each month |
 
 ## Running
 
@@ -101,15 +102,17 @@ nothing new to do changes nothing and sends nothing.
 
 | Command | Schedule | What it does |
 |---|---|---|
-| `flask alerts scan` | daily | Records reminders for deadlines 7 days out |
-| `flask alerts send` | hourly | Emails each watcher one digest of what they have not been sent |
-| `flask emails weekly` | weekly | Sends the weekly summary, at most once per account per ISO week |
-| `flask runs prune` | daily | Deletes detail no longer retained and abandons stale pushes |
-| `flask dumps rebuild` | every 10 minutes | Rebuilds the downloads when the live data has changed |
+| `flask --app tracker alerts scan` | daily | Records reminders for deadlines 7 days out |
+| `flask --app tracker alerts send` | hourly | Emails each watcher one digest of what they have not been sent |
+| `flask --app tracker emails weekly` | weekly | Sends the weekly summary, at most once per account per ISO week |
+| `flask --app tracker runs prune` | daily | Deletes detail no longer retained and abandons stale pushes |
+| `flask --app tracker dumps rebuild` | every 10 minutes | Rebuilds the downloads when the live data has changed |
 
-Publishing does not build the downloads, so without `dumps rebuild` they stay at the
-last data they were built from. The three email jobs need `SMTP_HOST`, `MAIL_FROM` and
-`SITE_URL`.
+Every job needs `DATABASE_URL` and `SECRET_KEY`, so give the cron jobs the same environment
+as the web service. `alerts send`, `emails weekly` and `emails announce` also need
+`SMTP_HOST`, `MAIL_FROM` and `SITE_URL`, and fail without them. Publishing does not build
+the downloads, so without `dumps rebuild` they stay at the last data they were built from;
+before the first publish it exits with "No data has been published".
 
 Announcements are sent by hand:
 

@@ -13,6 +13,7 @@
   {% if errors %}
   <div class="form-errors" role="alert"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
   {% endif %}
+  <br />
   <form method="post" action="{{ url_for('pages.contact') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="field">

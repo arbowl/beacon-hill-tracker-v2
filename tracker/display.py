@@ -162,6 +162,13 @@ def day(value: date | datetime) -> str:
     return value.isoformat()
 
 
+def long_day(value: date | datetime) -> str:
+    """'November 21, 2026'; instants are converted to the Legislature's time zone first."""
+    if isinstance(value, datetime):
+        value = value.astimezone(LEGISLATURE_TZ).date()
+    return f"{value:%B} {value.day}, {value.year}"
+
+
 def number(value: int) -> str:
     return f"{value:,}"
 
@@ -172,11 +179,6 @@ def file_size(value: int) -> str:
         if value >= scale:
             return f"{value / scale:.1f} {unit}"
     return f"{value} bytes"
-
-
-def rounded_down_thousands(value: int) -> str:
-    """11,204 -> '11,000+'; below 1,000 the exact count."""
-    return f"{value // 1000 * 1000:,}+" if value >= 1000 else f"{value:,}"
 
 
 def email_kind_groups() -> list[tuple[str, list[tuple[EmailKind, str, str | None]]]]:

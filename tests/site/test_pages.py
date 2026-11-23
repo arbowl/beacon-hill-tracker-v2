@@ -164,3 +164,24 @@ def test_contact_form(client: FlaskClient, app, published: None):
         },
     )
     assert bot.status_code == 200
+
+
+def test_documents_served_under_site_csp(client: FlaskClient):
+    pdf = client.get("/documents/missing_votes.pdf")
+    assert pdf.status_code == 200 and pdf.mimetype == "application/pdf"
+    for name in (
+        "chair_independence_analysis",
+        "compliance_cost_report",
+        "hr27_timeout_analysis",
+        "study_order_analysis",
+    ):
+        report = client.get(f"/documents/{name}.html")
+        assert report.status_code == 200 and report.mimetype == "text/html"
+        assert "'unsafe-inline'" not in report.headers["Content-Security-Policy"]
+        html = report.get_data(as_text=True)
+        assert re.search(r"<style|style=\"|<script|https://fonts", html) is None, name
+        for sheet in re.findall(r'href="(/static/css/[^"]+)"', html):
+            assert client.get(sheet).status_code == 200, sheet
+    assert "max-age=86400" in pdf.headers["Cache-Control"]
+    assert client.get("/documents/../config.py").status_code == 404
+    assert client.get("/documents/nope.pdf").status_code == 404

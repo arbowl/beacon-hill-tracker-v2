@@ -1,0 +1,18 @@
+<section id="updates-list" class="updates" aria-live="polite">
+  {% if not total %}
+  <p class="muted">No updates have been posted yet.</p>
+  {% elif not found %}
+  <p class="muted">No updates match. <a href="{{ url_for('updates.index') }}">Show all updates</a></p>
+  {% else %}
+  <ol class="update-list">
+    {% for u in found %}
+    <li>
+      <p class="update-meta"><span class="kicker">{{ u.meta.category | category_text }}</span> <time datetime="{{ u.meta.published.isoformat() }}">{{ u.meta.published | long_day }}</time></p>
+      <h2><a href="{{ url_for('updates.show', slug=u.slug) }}">{{ u.meta.title }}</a></h2>
+      <p>{{ u.meta.summary }}</p>
+      {% if u.meta.source %}<p class="update-source">Coverage in {{ u.meta.source }}</p>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+</section>

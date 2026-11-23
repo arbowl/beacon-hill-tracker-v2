@@ -23,12 +23,12 @@
       {% for endpoint, text in [('dashboard.index', 'Dashboard'), ('pages.methodology', 'Methodology'), ('pages.about', 'About'), ('pages.contact', 'Contact')] %}
       <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} aria-current="page"{% endif %}>{{ text }}</a>
       {% endfor %}
-      {% if current_user() %}
-      <a class="nav-account" href="{{ url_for('watch.index') }}"{% if request.endpoint == 'watch.index' %} aria-current="page"{% endif %}>Watchlist</a>
-      {% else %}
-      <a class="nav-account" href="{{ url_for('auth.signin') }}"{% if request.endpoint in ('auth.signin', 'auth.signup') %} aria-current="page"{% endif %}>Sign In</a>
-      {% endif %}
     </nav>
+    {% if current_user() %}
+    <a class="nav-account" href="{{ url_for('watch.index') }}"{% if request.endpoint == 'watch.index' %} aria-current="page"{% endif %}>Watchlist</a>
+    {% else %}
+    <a class="nav-account" href="{{ url_for('auth.signin') }}"{% if request.endpoint in ('auth.signin', 'auth.signup') %} aria-current="page"{% endif %}>Sign In</a>
+    {% endif %}
   </div>
 </header>
 
@@ -39,7 +39,7 @@
 <footer class="site-footer">
   <div class="container">
     <nav aria-label="Footer">
-      {% for endpoint, text in [('pages.about', 'About'), ('pages.methodology', 'Methodology'), ('pages.press', 'Press'), ('changes.index', 'Changes'), ('pages.privacy', 'Privacy'), ('pages.terms', 'Terms')] %}
+      {% for endpoint, text in [('pages.about', 'About'), ('pages.methodology', 'Methodology'), ('pages.press', 'Press'), ('updates.index', 'Updates'), ('changes.index', 'Changes'), ('pages.privacy', 'Privacy'), ('pages.terms', 'Terms')] %}
       <a href="{{ url_for(endpoint) }}">{{ text }}</a>
       {% endfor %}
     </nav>
@@ -47,6 +47,7 @@
     {% if status %}
     <span>Data as of {{ status.as_of | moment }} &middot; <a href="{{ url_for('changes.index') }}">Ruleset {{ status.rulesets | join(', ') }}</a></span>
     {% endif %}
+    <p class="disclaimer">The Tracker is an independent project and not an official source. For the authoritative record, see <a href="https://malegislature.gov">malegislature.gov</a>.</p>
   </div>
 </footer>
 </body>

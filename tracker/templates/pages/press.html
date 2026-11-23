@@ -14,6 +14,9 @@
     <li>Most figures count bill segments: one bill as one committee saw it. A bill referred to two committees counts twice. The <a href="{{ url_for('pages.methodology') }}#terms">methodology</a> explains the difference.</li>
     <li>Every dashboard view has a shareable link. Linking to the exact view you used lets readers check the figure.</li>
   </ul>
+  <h2>Coverage and announcements</h2>
+  {% set latest = latest_update() %}
+  <p>Coverage of the Tracker in the news, along with my announcements and analysis, is collected on the <a href="{{ url_for('updates.index') }}">updates page</a>{% if latest %}. The latest is <a href="{{ url_for('updates.show', slug=latest.slug) }}">{{ latest.meta.title }}</a>, posted {{ latest.meta.published | long_day }}{% endif %}.</p>
   <h2>Questions</h2>
   <p>I am happy to walk through how a figure was produced, or to check a specific bill before publication. Use the <a href="{{ url_for('pages.contact') }}">contact form</a> and mention your deadline.</p>
 </article>

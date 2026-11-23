@@ -104,7 +104,7 @@
         labels: f.labels,
         datasets: [{
           data: f.values.map(function (v) { return [-v / 2, v / 2]; }),
-          backgroundColor: f.values.map(function (_, i) { return i === last ? token("--c-compliant") : token("--c-faint"); }),
+          backgroundColor: f.values.map(function (_, i) { return i === last ? token("--c-compliant") : token("--c-accent-soft"); }),
           borderRadius: 4, borderSkipped: false, maxBarThickness: 24, categoryPercentage: 0.9, barPercentage: 0.9
         }]
       },
@@ -133,7 +133,29 @@
     }));
   }
 
+  function initToc() {
+    var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+    var targets = links.map(function (a) { return document.getElementById(a.getAttribute("href").slice(1)); });
+    if (!links.length) return;
+    var pending = false;
+    function update() {
+      pending = false;
+      var active = 0;
+      var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      targets.forEach(function (t, i) { if (t && t.getBoundingClientRect().top <= 120) active = i; });
+      if (atBottom) active = links.length - 1;
+      links.forEach(function (a, i) {
+        if (i === active) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
+      });
+    }
+    window.addEventListener("scroll", function () {
+      if (!pending) { pending = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
+  }
+
   document.addEventListener("DOMContentLoaded", initCharts);
+  document.addEventListener("DOMContentLoaded", initToc);
   document.addEventListener("htmx:load", function (event) {
     if (event.detail.elt.id === "charts") initCharts();
   });
