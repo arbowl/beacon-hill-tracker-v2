@@ -55,6 +55,7 @@ def committees(conn: Connection, session: int) -> list[dict[str, Any]]:
 
 
 def stats(conn: Connection, session: int, committee_id: str | None) -> dict[str, Any] | None:
+    """Stats for a committee, a chamber ('H', 'S', 'J'), or the session (None)."""
     return conn.execute(
         "SELECT * FROM committee_stats WHERE session = %s AND committee_id = %s",
         (session, committee_id or SESSION_ROW),
@@ -66,7 +67,10 @@ def _where(
 ) -> tuple[sql.Composable, dict[str, Any]]:
     conds = [sql.SQL("session = %(session)s")]
     params: dict[str, Any] = {"session": session}
-    if f.committee:
+    if f.chamber:
+        conds.append(sql.SQL("committee_id LIKE %(chamber)s"))
+        params["chamber"] = f.chamber + "%"
+    elif f.committee:
         conds.append(sql.SQL("committee_id = %(committee)s"))
         params["committee"] = f.committee
     if with_status and f.status:

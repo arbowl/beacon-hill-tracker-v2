@@ -94,7 +94,10 @@ def _x(rate: Decimal) -> float:
 
 
 def strip(conn: Connection, session: int, selected: str | None) -> Strip | None:
-    """One dot per committee with enough determined segments; coincident dots stack."""
+    """One dot per committee with enough determined segments; coincident dots stack.
+
+    selected is a committee ID or a chamber letter, which selects that chamber's committees.
+    """
     rows = conn.execute(
         "SELECT s.committee_id, c.name, s.decided_rate FROM committee_stats s"
         " JOIN committees c USING (session, committee_id)"
@@ -119,7 +122,8 @@ def strip(conn: Connection, session: int, selected: str | None) -> Strip | None:
                 r["decided_rate"],
                 cx,
                 cy,
-                r["committee_id"] == selected,
+                selected is not None
+                and (r["committee_id"] == selected or r["committee_id"][0] == selected),
             )
         )
     rates = [r["decided_rate"] for r in rows]

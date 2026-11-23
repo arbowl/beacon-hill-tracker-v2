@@ -10,11 +10,14 @@ from urllib.parse import urlencode
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
-from beacon_contract.v1 import COMMITTEE_ID_PATTERN
 from tracker.display import StatusFilter
 
 _BILL_QUERY = re.compile(r"^\s*([HS])\s*\.?\s*(\d+)\s*$", re.I)
 PAGE_SIZE = 50
+
+# The committee filter also takes a chamber letter, selecting all of that chamber's committees.
+CHAMBERS = {"H": "House", "S": "Senate", "J": "Joint"}
+COMMITTEE_OR_CHAMBER = r"^[HSJ]([1-9]\d*)?$"
 
 
 class Sort(StrEnum):
@@ -79,7 +82,7 @@ class DashboardFilters(BaseModel):
 
     q: Annotated[str, StringConstraints(strip_whitespace=True, max_length=100)] = ""
     status: StatusFilter | None = None
-    committee: Annotated[str, StringConstraints(pattern=COMMITTEE_ID_PATTERN)] | None = None
+    committee: Annotated[str, StringConstraints(pattern=COMMITTEE_OR_CHAMBER)] | None = None
     sort: Sort = Sort.SEVERITY
     after: Annotated[str, Field(max_length=400)] | None = None
 
@@ -98,6 +101,16 @@ class DashboardFilters(BaseModel):
     def bill_prefix(self) -> str | None:
         """'h.10' -> 'H10' when q looks like a bill number, else None."""
         return normalize_bill_id(self.q)
+
+    @property
+    def chamber(self) -> str | None:
+        """'H', 'S', or 'J' when the filter selects a whole chamber."""
+        return self.committee if self.committee in CHAMBERS else None
+
+    @property
+    def committee_id(self) -> str | None:
+        """The single committee selected, if any."""
+        return None if self.chamber else self.committee
 
     @property
     def keyset(self) -> tuple | None:

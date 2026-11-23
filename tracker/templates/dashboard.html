@@ -47,9 +47,14 @@
         <label for="committee">Committee</label>
         <select class="select" id="committee" name="committee">
           <option value="">All committees</option>
-          {% for c in committees %}
-          <option value="{{ c.committee_id }}"{% if c.committee_id == filters.committee %} selected{% endif %}>{{ c.name }} ({{ c.committee_id }})</option>
+          {% for letter, name in chambers %}
+          <option value="{{ letter }}"{% if letter == filters.committee %} selected{% endif %}>All {{ name }} committees</option>
           {% endfor %}
+          <optgroup label="Committees">
+            {% for c in committees %}
+            <option value="{{ c.committee_id }}"{% if c.committee_id == filters.committee %} selected{% endif %}>{{ c.name }} ({{ c.committee_id }})</option>
+            {% endfor %}
+          </optgroup>
         </select>
       </div>
       <noscript><button class="btn small" type="submit">Apply filters</button></noscript>

@@ -68,9 +68,30 @@ def test_filters(client: FlaskClient, published: None, db: Connection):
     assert "No bill segments match" not in _text(client, f"/?q={word}")
 
 
+def test_chamber_filter(client: FlaskClient, published: None):
+    html = _text(client, "/")
+    assert '<option value="J">All Joint committees</option>' in html
+    assert '<option value="H">' not in html, "chambers without data are not offered"
+    joint = _text(client, "/?committee=J")
+    assert "Showing 50 of 858" in joint
+    assert "in Joint committees" in joint and "Compliance rate, Joint" in joint
+    assert '<option value="J" selected>' in joint
+    assert "No published data for this selection" in _text(client, "/?committee=H")
+    assert "No bill segments match" in _text(client, "/?committee=S")
+
+
 @pytest.mark.parametrize(
     "query",
-    ["status=bogus", "committee=J0", "sort=up", "after=zzz", "nonsense=1", "q=" + "x" * 101],
+    [
+        "status=bogus",
+        "committee=J0",
+        "committee=X",
+        "committee=HJ",
+        "sort=up",
+        "after=zzz",
+        "nonsense=1",
+        "q=" + "x" * 101,
+    ],
 )
 def test_invalid_filters_are_400(client: FlaskClient, published: None, query: str):
     _text(client, f"/?{query}", status=400)

@@ -3,6 +3,7 @@
 import hashlib
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
+from typing import Any
 
 from flask import (
     Blueprint,
@@ -21,7 +22,7 @@ from tracker.auth.current import current_user
 from tracker.changes import queries as changes
 from tracker.changes.queries import ShownRelease
 from tracker.dashboard import figures, queries
-from tracker.dashboard.filters import PAGE_SIZE, SORT_TEXT, DashboardFilters
+from tracker.dashboard.filters import CHAMBERS, PAGE_SIZE, SORT_TEXT, DashboardFilters
 from tracker.db import pool
 from tracker.display import LABEL_FILTER, LEGISLATURE_TZ
 from tracker.enums import WatchKind
@@ -82,6 +83,23 @@ def _respond(body: str, etag: str) -> Response:
     return response
 
 
+def _selection(
+    committee_rows: list[dict[str, Any]], filters: DashboardFilters
+) -> dict[str, Any] | None:
+    """The selected committee row, or a stand-in row for a selected chamber."""
+    if chamber := filters.chamber:
+        rows = [c for c in committee_rows if c["committee_id"][0] == chamber]
+        if not rows:
+            return None
+        name = CHAMBERS[chamber]
+        return {
+            "committee_id": name,
+            "name": f"{name} committees",
+            "as_of": max(c["as_of"] for c in rows),
+        }
+    return next((c for c in committee_rows if c["committee_id"] == filters.committee), None)
+
+
 @bp.get("/")
 def index() -> Response:
     try:
@@ -102,7 +120,7 @@ def index() -> Response:
     session = status.session
     with pool().connection() as conn:
         committee_rows = queries.committees(conn, session)
-        selected = next((c for c in committee_rows if c["committee_id"] == filters.committee), None)
+        selected = _selection(committee_rows, filters)
         stats = queries.stats(conn, session, filters.committee)
         page = queries.segment_page(conn, session, filters)
         context = dict(
@@ -127,9 +145,14 @@ def index() -> Response:
                 "SELECT * FROM insights WHERE session = %s ORDER BY position", (session,)
             ).fetchall(),
             notices=_hero_notices(notice, update),
-            committee_watch=watch_button(WatchKind.COMMITTEE, session, filters.committee)
-            if filters.committee
+            committee_watch=watch_button(WatchKind.COMMITTEE, session, filters.committee_id)
+            if filters.committee_id
             else None,
+            chambers=[
+                (letter, name)
+                for letter, name in CHAMBERS.items()
+                if any(c["committee_id"][0] == letter for c in committee_rows)
+            ],
             status_options=STATUS_OPTIONS,
             sort_options=list(SORT_TEXT.items()),
             page_size=PAGE_SIZE,

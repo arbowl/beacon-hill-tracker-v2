@@ -49,9 +49,9 @@ def test_first_publish_builds_read_models(pusher: Pusher, db: Connection):
     assert float(stats["compliance_rate"]) == expected_rate
     assert stats["funnel"][0] == len(tenures) and stats["funnel"][-1] == labels["Compliant"]
     assert stats["funnel"] == sorted(stats["funnel"], reverse=True)
-    assert _count(db, "committee_stats") == 3
+    assert _count(db, "committee_stats") == 4
     assert _count(db, "label_changes WHERE from_label IS NULL") == len(tenures)
-    assert _count(db, "snapshots WHERE run_id = %s", run_id) == 3
+    assert _count(db, "snapshots WHERE run_id = %s", run_id) == 4
     assert _count(db, "committees") == 2
 
 

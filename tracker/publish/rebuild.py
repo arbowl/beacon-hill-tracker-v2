@@ -71,6 +71,7 @@ WHERE n.tenure_id IS NULL OR o.tenure_id IS NULL
       IS DISTINCT FROM (n.hearing_notice, n.summary_posted, n.votes_posted, n.report_out)
 """
 
+# One row per committee, per chamber ('H', 'S', 'J'), and for the session ('*').
 _STATS = """
 INSERT INTO committee_stats (
   session, committee_id, as_of, total, compliant, provisional, non_compliant,
@@ -81,8 +82,9 @@ SELECT s.*,
        round(100.0 * s.compliant / nullif(s.compliant + s.non_compliant, 0), 2)
 FROM (
   SELECT ct.session,
-         CASE WHEN GROUPING(ct.committee_id) = 1 THEN '*' ELSE ct.committee_id END
-           AS committee_id,
+         CASE WHEN GROUPING(ct.committee_id) = 0 THEN ct.committee_id
+              WHEN GROUPING(left(ct.committee_id, 1)) = 0 THEN left(ct.committee_id, 1)
+              ELSE '*' END AS committee_id,
          max(cc.as_of) AS as_of,
          count(*) AS total,
          count(*) FILTER (WHERE ct.label = 'Compliant') AS compliant,
@@ -115,7 +117,8 @@ FROM (
            coalesce(ct.votes_posted, 'Met') = 'Met' AS votes,
            coalesce(ct.report_out, 'Met') = 'Met' AS report) p
   WHERE ct.session = %(session)s
-  GROUP BY GROUPING SETS ((ct.session, ct.committee_id), (ct.session))
+  GROUP BY GROUPING SETS ((ct.session, ct.committee_id), (ct.session, left(ct.committee_id, 1)),
+                         (ct.session))
 ) s
 """
 
@@ -126,7 +129,8 @@ SELECT s.session, s.committee_id, %(now)s, coalesce(cc.run_id, %(run_id)s),
        s.total, s.compliant, s.provisional, s.non_compliant
 FROM committee_stats s
 LEFT JOIN committee_current cc ON cc.session = s.session AND cc.committee_id = s.committee_id
-WHERE s.session = %(session)s AND (s.committee_id = ANY(%(committees)s) OR s.committee_id = '*')
+WHERE s.session = %(session)s
+  AND (s.committee_id = ANY(%(committees)s) OR s.committee_id IN ('*', 'H', 'S', 'J'))
 """
 
 

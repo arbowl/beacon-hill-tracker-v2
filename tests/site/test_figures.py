@@ -11,10 +11,11 @@ from tests.conftest import Pusher, bundle_dict
 from tracker.db import Connection
 
 # Recomputes committee_stats from raw tenures and requirements of the live runs, per committee
-# and for the session ('*'), without using current_tenures.
+# chamber ('J'), and for the session ('*'), without using current_tenures.
 REPRODUCE = """
 WITH live AS (
-  SELECT t.committee_id, t.bill_id, t.label, t.referred_on IS NOT NULL AS observed,
+  SELECT t.committee_id, left(t.committee_id, 1) AS chamber, t.bill_id, t.label,
+         t.referred_on IS NOT NULL AS observed,
          max(r.status) FILTER (WHERE r.requirement = 'hearing_notice') AS notice,
          max(r.status) FILTER (WHERE r.requirement = 'summary_posted') AS summary,
          max(r.status) FILTER (WHERE r.requirement = 'votes_posted') AS votes,
@@ -23,7 +24,7 @@ WITH live AS (
   JOIN tenures t ON t.run_id = cc.run_id AND t.committee_id = cc.committee_id
   JOIN requirements r ON r.run_id = t.run_id AND r.tenure_id = t.tenure_id
   GROUP BY t.committee_id, t.tenure_id, t.bill_id, t.label, t.referred_on)
-SELECT coalesce(committee_id, '*') AS committee_id,
+SELECT coalesce(committee_id, chamber, '*') AS committee_id,
        count(*) AS total,
        count(*) FILTER (WHERE label = 'Compliant') AS compliant,
        count(*) FILTER (WHERE label = 'Provisional') AS provisional,
@@ -47,7 +48,7 @@ SELECT coalesce(committee_id, '*') AS committee_id,
          AS compliance_rate,
        round(100.0 * count(*) FILTER (WHERE label = 'Compliant')
              / nullif(count(*) FILTER (WHERE label <> 'Provisional'), 0), 2) AS decided_rate
-FROM live GROUP BY ROLLUP (committee_id)
+FROM live GROUP BY GROUPING SETS ((committee_id), (chamber), ())
 """
 
 BANNED = re.compile(
@@ -63,7 +64,7 @@ def published(pusher: Pusher) -> None:
 def test_stats_reproduce_from_raw_rows(published: None, db: Connection):
     expected = {r["committee_id"]: r for r in db.execute(REPRODUCE)}
     actual = {r["committee_id"]: r for r in db.execute("SELECT * FROM committee_stats")}
-    assert expected.keys() == actual.keys() == {"*", "J19", "J45"}
+    assert expected.keys() == actual.keys() == {"*", "J", "J19", "J45"}
     for committee_id, row in expected.items():
         for column, value in row.items():
             assert actual[committee_id][column] == value, (committee_id, column)
