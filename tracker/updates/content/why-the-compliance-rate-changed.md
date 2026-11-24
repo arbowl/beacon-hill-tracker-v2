@@ -32,7 +32,7 @@ I compared the old and new algorithms bill by bill on the same day, November 20,
 | Adding joint committee bills the old tool never listed | 22.5% |
 | Adding every House and Senate committee bill | 37.6% |
 
-1. **Procedural transits:** Many bill segments exist only for a short time in a House or Senate committe's tenure. These segments contain no hearing, no vote, and are often quick turnarounds. These contain no true compliance content to analyze, so pruning these removes many Provisional bill segments from the count.
+1. **Procedural transits:** Many bill segments exist only for a short time in a House or Senate committee's tenure. These segments contain no hearing, no vote, and are often quick turnarounds. These contain no true compliance content to analyze, so pruning these removes many Provisional bill segments from the count.
 2. **Mislabeled bills:** The old tool marked 703 joint committee bills Compliant even though the data showed they were reported out after their deadline. Fixing those lowers the rate by 9.3 points.
 3. **Coverage:** The old tool missed some bill pages for House and Senate committees. The new one checks every bill: 2,320 House and Senate segments, nearly all of them passing or still pending. It also picks up 1,112 joint committee segments the old tool never listed. Together these *raise* the rate by about 20 points.
 
