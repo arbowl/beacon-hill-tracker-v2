@@ -188,7 +188,7 @@ def _store_bundle(conn: Connection, run_id: UUID, b: v1.CommitteeBundle, sha256:
                 )
         with cur.copy(
             "COPY no_requirement_tenures (run_id, committee_id, tenure_id, bill_id, referred_on,"
-            " reason, awaiting, carried_by) FROM STDIN"
+            " reason, awaiting, carried_by, note) FROM STDIN"
         ) as cp:
             for n in b.no_requirements:
                 cp.write_row(
@@ -201,6 +201,7 @@ def _store_bundle(conn: Connection, run_id: UUID, b: v1.CommitteeBundle, sha256:
                         n.reason,
                         [a.value for a in n.awaiting],
                         n.carried_by,
+                        n.note,
                     )
                 )
         with cur.copy(

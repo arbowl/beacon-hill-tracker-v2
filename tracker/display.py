@@ -97,6 +97,8 @@ NO_REQUIREMENTS_TEXT = {
     NoRequirementsReason.NONE_YET: "Nothing is owed yet.",
     NoRequirementsReason.ACCOMPANIED: "It came before the committee only as part of another"
     " bill, a study order or new draft, which is checked instead.",
+    NoRequirementsReason.RECORD_INCOMPLETE: "The legislative record does not show how this bill"
+    " came before the committee, so it is not judged.",
 }
 
 
@@ -106,6 +108,8 @@ def owed_nothing_note(row: dict) -> str:
     if row["awaiting"]:
         names = ", ".join(REQUIREMENT_TEXT[RequirementId(a)].lower() for a in row["awaiting"])
         text += f" A {names} record will be due once the committee reports."
+    if row.get("note"):
+        text += f" {row['note']}"
     return text
 
 

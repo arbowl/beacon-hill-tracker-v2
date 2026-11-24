@@ -83,6 +83,7 @@ class NoRequirementsReason(StrEnum):
     NONE_APPLY = "none_apply"
     NONE_YET = "none_yet"
     ACCOMPANIED = "accompanied"
+    RECORD_INCOMPLETE = "record_incomplete"
 
 
 class StepRole(StrEnum):
@@ -304,7 +305,10 @@ class NoRequirements(_Model):
     acts; reason is none_yet if and only if it is non-empty. carried_by names the bill
     (a study order or new draft) this one accompanied before the committee, which is
     judged in its place; reason is accompanied if and only if it is set, and
-    referred_on is then the day the bill came before the committee with it.
+    referred_on is then the day the bill came before the committee with it. note
+    explains a reviewed gap in the legislative record, which does not show how the bill
+    came before the committee; reason is record_incomplete if and only if it is set, and
+    referred_on is then the day the bill must have come before the committee.
     """
 
     tenure_id: Text
@@ -314,6 +318,7 @@ class NoRequirements(_Model):
     reason: NoRequirementsReason
     awaiting: tuple[RequirementId, ...] = ()
     carried_by: BillId | None = None
+    note: Text | None = None
 
     @property
     def session(self) -> int:
@@ -340,6 +345,8 @@ class NoRequirements(_Model):
             raise ValueError("reason is accompanied if and only if carried_by is set")
         if self.carried_by == self.bill_id:
             raise ValueError("a bill cannot be carried by itself")
+        if (self.reason == NoRequirementsReason.RECORD_INCOMPLETE) != (self.note is not None):
+            raise ValueError("reason is record_incomplete if and only if note is set")
         return self
 
 

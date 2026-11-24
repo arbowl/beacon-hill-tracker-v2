@@ -350,3 +350,39 @@ def test_rejects_carried(mutate: Callable[[dict], None]):
     mutate(b)
     with pytest.raises(ValidationError):
         CommitteeBundle.model_validate(b)
+
+
+def _incomplete() -> dict:
+    """A bundle with a bill whose transfer to J19 the record omits."""
+    b = _carried()
+    b["no_requirements"][0] |= {
+        "reason": "record_incomplete",
+        "carried_by": None,
+        "note": "The bill history does not record its transfer to the committee.",
+    }
+    return b
+
+
+def test_record_gap_round_trips():
+    model = CommitteeBundle.model_validate(_incomplete())
+    (item,) = model.no_requirements
+    assert item.reason.value == "record_incomplete"
+    assert item.note and item.note.startswith("The bill history")
+    assert CommitteeBundle.model_validate_json(model.model_dump_json()) == model
+
+
+INCOMPLETE_REJECTIONS: dict[str, Callable[[dict], None]] = {
+    "record_incomplete without note": _set(_carried_item, "note", None),
+    "note with another reason": _set(_carried_item, "reason", "none_apply"),
+    "record_incomplete awaiting": _set(_carried_item, "awaiting", ["votes_posted"]),
+}
+
+
+@pytest.mark.parametrize(
+    "mutate", INCOMPLETE_REJECTIONS.values(), ids=INCOMPLETE_REJECTIONS.keys()
+)
+def test_rejects_record_gap(mutate: Callable[[dict], None]):
+    b = _incomplete()
+    mutate(b)
+    with pytest.raises(ValidationError):
+        CommitteeBundle.model_validate(b)

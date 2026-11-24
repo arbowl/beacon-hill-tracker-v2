@@ -14,7 +14,7 @@
   </div>
   {% set quiet = owed_nothing.values() | sum if owed_nothing else 0 %}
   {% if quiet %}
-  <p class="seg-note">{{ quiet | number }} more referral{{ 's' if quiet != 1 }} to this committee owe{{ 's' if quiet == 1 }} nothing under the rules tracked here{% if owed_nothing.none_yet %} ({{ owed_nothing.none_yet | number }} until the committee reports){% endif %}{% if owed_nothing.accompanied %} ({{ owed_nothing.accompanied | number }} as part of a study order or new draft checked instead){% endif %}. They have no status and count toward no total; each is listed on its bill's page.</p>
+  <p class="seg-note">{{ quiet | number }} more referral{{ 's' if quiet != 1 }} to this committee owe{{ 's' if quiet == 1 }} nothing under the rules tracked here{% if owed_nothing.none_yet %} ({{ owed_nothing.none_yet | number }} until the committee reports){% endif %}{% if owed_nothing.accompanied %} ({{ owed_nothing.accompanied | number }} as part of a study order or new draft checked instead){% endif %}{% if owed_nothing.record_incomplete %} ({{ owed_nothing.record_incomplete | number }} where the legislative record does not show how the bill came before the committee){% endif %}. They have no status and count toward no total; each is listed on its bill's page.</p>
   {% endif %}
 
   {% for row in page.rows %}
