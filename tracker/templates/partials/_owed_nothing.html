@@ -4,8 +4,13 @@
     <span class="seg-id">{{ row.committee_id }}</span>
     <div>
       <h3 class="seg-title">{{ row.committee_name }}</h3>
+      {% if row.carried_by %}
+      <p class="seg-meta">Came before the committee {{ row.referred_on | day }}</p>
+      <p class="seg-note">It came before the committee only as part of <a class="mono" href="{{ url_for('bills.bill', session=session, bill_id=row.carried_by) }}">{{ row.carried_by }}</a>, a study order or new draft, which is checked instead.</p>
+      {% else %}
       <p class="seg-meta">Referred {{ row.referred_on | day }}</p>
       <p class="seg-note">{{ row | owed_nothing_note }}</p>
+      {% endif %}
     </div>
     <span class="label quiet">No applicable requirements</span>
   </div>

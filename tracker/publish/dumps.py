@@ -115,7 +115,7 @@ def bundle(conn: Connection, run_id: UUID, committee_id: str) -> v1.CommitteeBun
         key,
     ).fetchall()
     owed_nothing = conn.execute(
-        "SELECT tenure_id, bill_id, committee_id, referred_on, reason, awaiting"
+        "SELECT tenure_id, bill_id, committee_id, referred_on, reason, awaiting, carried_by"
         " FROM no_requirement_tenures WHERE run_id = %s AND committee_id = %s"
         " ORDER BY substring(bill_id FROM 2)::int, bill_id, tenure_id",
         key,

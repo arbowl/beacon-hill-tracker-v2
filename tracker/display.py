@@ -95,6 +95,8 @@ REASON_TEXT = {
 NO_REQUIREMENTS_TEXT = {
     NoRequirementsReason.NONE_APPLY: "None of the rules tracked here applies to this referral.",
     NoRequirementsReason.NONE_YET: "Nothing is owed yet.",
+    NoRequirementsReason.ACCOMPANIED: "It came before the committee only as part of another"
+    " bill, a study order or new draft, which is checked instead.",
 }
 
 
