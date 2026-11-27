@@ -1,6 +1,6 @@
-Beacon Hill Compliance Tracker: weekly summary, {{ week_of | day }}
+Beacon Hill Compliance Tracker: Weekly summary, {{ week_of | day }}
 
-As of {{ status.as_of | moment }}, the Beacon Hill Compliance Tracker follows {{ stats.bills_total | number }} bills in {{ stats.total | number }} bill segments across {{ committees }} committees. A bill segment is one bill as one committee handled it.
+As of {{ status.as_of | moment }}, the Beacon Hill Compliance Tracker follows {{ stats.bills_total | number }} bills in {{ stats.total | number }} bill segments across {{ committees }} committees.
 
 No violation detected: {{ stats.compliant | number }} bill segments
 Provisional: {{ stats.provisional | number }} bill segments
