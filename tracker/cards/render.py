@@ -155,7 +155,7 @@ def figures_card(f: Figures) -> bytes:
     x, legend_y = float(MARGIN), bar_y + bar_h + 34
     for label, count in parts:
         draw.rectangle([x, legend_y - 18, x + 14, legend_y - 4], fill=STATUS[label][0])
-        text = f"{count:,} {LABEL_TEXT[label].lower()}"
+        text = f"{LABEL_TEXT[label]}: {count:,}"
         draw.text((x + 24, legend_y), text, font=_sans(24, 500), fill=INK, anchor="ls")
         x += 24 + draw.textlength(text, font=_sans(24, 500)) + 36
     _footer(draw, f.as_of)

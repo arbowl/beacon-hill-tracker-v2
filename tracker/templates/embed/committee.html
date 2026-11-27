@@ -7,9 +7,9 @@
     {% for p in bar %}{% if p.width %}<rect class="{{ p.css }}" x="{{ p.x }}" y="0" width="{{ p.width }}" height="10"/>{% endif %}{% endfor %}
   </svg>
   <p class="counts">
-    <span><i class="compliant"></i>{{ stats.compliant | number }} no violation detected</span>
-    <span><i class="provisional"></i>{{ stats.provisional | number }} provisional</span>
-    <span><i class="noncompliant"></i>{{ stats.non_compliant | number }} violation detected</span>
+    <span><i class="compliant"></i>No violation detected: {{ stats.compliant | number }}</span>
+    <span><i class="provisional"></i>Provisional: {{ stats.provisional | number }}</span>
+    <span><i class="noncompliant"></i>Violation detected: {{ stats.non_compliant | number }}</span>
   </p>
   <p class="counts">Not shown in the record: hearing notice {{ stats.hearing_notice_unmet | number }}, summary {{ stats.summary_unmet | number }}, vote {{ stats.votes_unmet | number }}, reported out {{ stats.report_out_unmet | number }}</p>
 {% endblock %}
