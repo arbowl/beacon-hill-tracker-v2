@@ -1,6 +1,6 @@
-Beacon Hill Compliance Tracker: updates on {{ total }} bill segment{{ 's' if total != 1 }} you watch
+Beacon Hill Compliance Tracker: Updates on {{ total }} bill segment{{ 's' if total != 1 }} you watch
 
-What changed on the bills and committees you watch since the last email.
+What changed on the bills and committees you watch since the last email:
 {% for s in segments %}
 {{ s.bill_id }}{% if s.title %}: {{ s.title }}{% endif %}
 {{ s.committee_name }} ({{ s.committee_id }})
