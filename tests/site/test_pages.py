@@ -157,6 +157,94 @@ def test_static_pages(client: FlaskClient, published: None, path: str):
     assert not re.search(r"\b(we|our|us)\b", re.sub(r"<[^>]+>", " ", html), re.I)
 
 
+def _meta(html: str, attr: str, key: str) -> str | None:
+    match = re.search(rf'<meta {attr}="{re.escape(key)}" content="([^"]*)"', html)
+    return unescape(match[1]) if match else None
+
+
+@pytest.mark.parametrize(
+    ("path", "title", "image"),
+    [
+        ("/", "Beacon Hill Compliance Tracker", "/cards/site.png?v="),
+        ("/methodology", "Methodology", "/static/og/default.png"),
+        ("/press", "Press", "/static/og/default.png"),
+        ("/committees", "Committees", "/static/og/default.png"),
+        ("/bills/194/H10", "H10: ", "/cards/bill/194/H10.png?v="),
+    ],
+)
+def test_link_preview_tags(client: FlaskClient, published: None, path: str, title: str, image: str):
+    html = _text(client, path)
+    assert (_meta(html, "property", "og:title") or "").startswith(title)
+    assert "| Beacon Hill" not in (_meta(html, "property", "og:title") or "")
+    assert _meta(html, "property", "og:description") == _meta(html, "name", "description")
+    assert _meta(html, "property", "og:url") == f"http://localhost{path}"
+    src = _meta(html, "property", "og:image") or ""
+    assert src.startswith(f"http://localhost{image}")
+    response = client.get(src.removeprefix("http://localhost"))
+    assert response.status_code == 200 and response.mimetype == "image/png"
+    assert _meta(html, "name", "twitter:card") == "summary_large_image"
+    assert _meta(html, "name", "robots") is None
+
+
+def test_committee_view_previews_its_committee(client: FlaskClient, published: None):
+    html = _text(client, "/?committee=J19&sort=bill")
+    assert _meta(html, "property", "og:url") == "http://localhost/?committee=J19"
+    assert (_meta(html, "property", "og:image") or "").startswith(
+        "http://localhost/cards/committee/J19.png?v="
+    )
+    description = _meta(html, "name", "description") or ""
+    assert re.match(r"\d+\.\d% of [\d,]+ bill segments in the Joint Committee on ", description)
+    chamber = _text(client, "/?committee=J")
+    assert "bill segments in Joint committees" in (_meta(chamber, "name", "description") or "")
+    assert "/cards/committee/J.png?v=" in (_meta(chamber, "property", "og:image") or "")
+
+
+def test_cards(client: FlaskClient, published: None):
+    src = _meta(_text(client, "/"), "property", "og:image") or ""
+    current = client.get(src.removeprefix("http://localhost"))
+    assert current.data[:8] == b"\x89PNG\r\n\x1a\n"
+    assert "immutable" in current.headers["Cache-Control"]
+    assert client.get("/cards/site.png").headers["Cache-Control"] == "public, max-age=300"
+    again = client.get("/cards/site.png", headers={"If-None-Match": current.headers["ETag"]})
+    assert again.status_code == 304
+    for path in ("/cards/committee/J19.png", "/cards/committee/J.png", "/cards/bill/194/H10.png"):
+        assert client.get(path).mimetype == "image/png", path
+    for path in (
+        "/cards/committee/J999.png",
+        "/cards/committee/xyz.png",
+        "/cards/bill/194/H999999.png",
+        "/cards/bill/194/h.10.png",
+    ):
+        assert client.get(path).status_code == 404, path
+
+
+def test_card_url_changes_with_each_publication(
+    client: FlaskClient, pusher: Pusher, published: None
+):
+    before = _meta(_text(client, "/"), "property", "og:image")
+    pusher.push({"J19": bundle_dict("J19")})
+    after = _meta(_text(client, "/"), "property", "og:image")
+    assert before and after and before != after
+
+
+def test_cards_before_any_data(client: FlaskClient):
+    assert client.get("/cards/site.png").status_code == 404
+    image = _meta(_text(client, "/"), "property", "og:image") or ""
+    assert image.startswith("http://localhost/static/og/default.png")
+
+
+def test_public_pages_have_their_own_description(client: FlaskClient, published: None):
+    default = _meta(_text(client, "/"), "name", "description")
+    for path in ("/methodology", "/about", "/press", "/committees", "/contact", "/bills/194/H10"):
+        assert _meta(_text(client, path), "name", "description") != default, path
+
+
+@pytest.mark.parametrize("path", ["/signin", "/signup", "/nonexistent"])
+def test_private_pages_are_noindex(client: FlaskClient, published: None, path: str):
+    response = client.get(path)
+    assert _meta(response.get_data(as_text=True), "name", "robots") == "noindex"
+
+
 def test_methodology_quotes_cited_rules(client: FlaskClient, published: None):
     assert "Joint Rule 10" in _text(client, "/methodology")
 

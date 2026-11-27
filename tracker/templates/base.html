@@ -6,6 +6,22 @@
 <meta name="htmx-config" content='{"includeIndicatorStyles": false, "allowEval": false, "allowScriptTags": false, "attributesToSettle": ["class"]}'>
 <title>{% block title %}Beacon Hill Compliance Tracker{% endblock %}</title>
 <meta name="description" content="{% block description %}Detected violations of the Massachusetts Legislature's joint rules on hearing notice, summaries, votes, and reporting deadlines, bill by bill.{% endblock %}">
+{% block robots %}{% endblock %}
+{% set page_url = site_url(request.path) %}
+<link rel="canonical" href="{{ page_url }}">
+<meta property="og:site_name" content="Beacon Hill Compliance Tracker">
+<meta property="og:type" content="{% block og_type %}website{% endblock %}">
+<meta property="og:title" content="{% block og_title %}{{ self.title() | replace(' | Beacon Hill Compliance Tracker', '') }}{% endblock %}">
+<meta property="og:description" content="{{ self.description() }}">
+<meta property="og:url" content="{% block og_url %}{{ site_url(request.path) }}{% endblock %}">
+<meta property="og:image" content="{% block og_image %}{{ site_url(url_for('static', filename='og/default.png', v=config.TRACKER_BUILD)) }}{% endblock %}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{% block og_image_alt %}Beacon Hill Compliance Tracker: is Beacon Hill following its own rules?{% endblock %}">
+<meta property="og:locale" content="en_US">
+{% block og_extra %}{% endblock %}
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="{{ url_for('static', filename='fonts/inter-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{{ url_for('static', filename='fonts/merriweather-latin-700-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
 <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">

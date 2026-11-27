@@ -6,18 +6,17 @@ minutes, so heavy embed traffic stays cheap.
 
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Annotated, Any, cast
+from typing import Annotated, Any
 
-from flask import Blueprint, Response, current_app, render_template, request, url_for
+from flask import Blueprint, Response, render_template, request, url_for
 from pydantic import BaseModel, ConfigDict, StringConstraints, ValidationError
 
 from beacon_contract import v1
 from tracker.bills import queries as bills
-from tracker.config import Settings
 from tracker.dashboard import queries
 from tracker.dashboard.filters import CHAMBERS, normalize_bill_id
 from tracker.db import pool
-from tracker.web import content_security_policy, site_status
+from tracker.web import content_security_policy, site_status, site_url
 
 bp = Blueprint("embed", __name__, url_prefix="/embed")
 
@@ -85,8 +84,8 @@ def _bar(stats: dict[str, Any]) -> list[BarPart]:
 
 
 def _widget(template: str, status: int = 200, **context: Any) -> Response:
-    context.setdefault("link", _site_url(url_for("dashboard.index")))
-    body = render_template(template, methodology=_site_url(url_for("pages.methodology")), **context)
+    context.setdefault("link", site_url(url_for("dashboard.index")))
+    body = render_template(template, methodology=site_url(url_for("pages.methodology")), **context)
     response = Response(body, status=status)
     response.headers["Content-Security-Policy"] = content_security_policy(frame_ancestors="*")
     response.headers["Cache-Control"] = "public, max-age=300"
@@ -127,7 +126,7 @@ def committee(committee_id: str) -> Response:
         as_of=info["as_of"],
         stats=stats,
         bar=_bar(stats),
-        link=_site_url(url_for("dashboard.index", committee=committee_id)),
+        link=site_url(url_for("dashboard.index", committee=committee_id)),
     )
 
 
@@ -148,7 +147,7 @@ def _aggregate(key: str, name: str, link: str) -> Response:
         as_of=stats["as_of"],
         stats=stats,
         bar=_bar(stats),
-        link=_site_url(link),
+        link=site_url(link),
     )
 
 
@@ -191,16 +190,8 @@ def bill(session: int, bill_id: str) -> Response:
         segments=segments[:MAX_BILL_SEGMENTS],
         hidden=max(0, len(segments) - MAX_BILL_SEGMENTS),
         as_of=as_of,
-        link=_site_url(url_for("bills.bill", session=session, bill_id=canonical)),
+        link=site_url(url_for("bills.bill", session=session, bill_id=canonical)),
     )
-
-
-def _site_url(path: str) -> str:
-    """Absolute link to the site: SITE_URL when set, else this request's host."""
-    settings = cast(Settings, current_app.config["TRACKER_SETTINGS"])
-    if settings.site_url is not None:
-        return settings.site_link(path)
-    return request.url_root.rstrip("/") + path
 
 
 @bp.get("")
@@ -246,7 +237,7 @@ def builder() -> str:
         sizes=list(Size),
         themes=list(Theme),
         src=src,
-        snippet_src=_site_url(src) if src else None,
+        snippet_src=site_url(src) if src else None,
         width=width,
         height=height,
         error=error,

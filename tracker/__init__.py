@@ -9,6 +9,8 @@ from tracker import cli, csrf, web
 from tracker.api.routes import bp as api_bp
 from tracker.auth.routes import bp as auth_bp
 from tracker.bills.routes import bp as bills_bp
+from tracker.cards.routes import bp as cards_bp
+from tracker.cards.routes import card_url
 from tracker.changes.routes import bp as changes_bp
 from tracker.config import Settings
 from tracker.dashboard.routes import bp as dashboard_bp
@@ -60,11 +62,13 @@ def create_app(settings: Settings | None = None) -> Flask:
         watch_bp,
         email_bp,
         embed_bp,
+        cards_bp,
     )
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
     web.register(app)
     app.add_template_global(csrf.token, "csrf_token")
+    app.add_template_global(card_url)
     cli.register(app)
 
     @app.get("/healthz")

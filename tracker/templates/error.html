@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ error.code }} | Beacon Hill Compliance Tracker{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
 {% block main %}
 <header class="page-head">
   <p class="kicker">Error {{ error.code }}</p>

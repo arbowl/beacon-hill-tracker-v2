@@ -2,14 +2,16 @@
 
 import hashlib
 from pathlib import Path
+from typing import cast
 from urllib.parse import urlsplit
 
-from flask import Flask, Response, g, render_template, request
+from flask import Flask, Response, current_app, g, render_template, request
 from werkzeug.exceptions import HTTPException
 
 from beacon_contract.v1 import ComplianceLabel, ErrorBody, ErrorInfo
 from tracker import display, segments
 from tracker.auth.current import current_user, here
+from tracker.config import Settings
 from tracker.dashboard.queries import SiteStatus
 from tracker.dashboard.queries import site_status as query_site_status
 from tracker.db import pool
@@ -43,6 +45,14 @@ def site_status() -> SiteStatus | None:
     return g.site_status
 
 
+def site_url(path: str) -> str:
+    """Absolute link to the site: SITE_URL when set, else this request's host."""
+    settings = cast(Settings, current_app.config["TRACKER_SETTINGS"])
+    if settings.site_url is not None:
+        return settings.site_link(path)
+    return request.url_root.rstrip("/") + path
+
+
 def _ordinal(n: int) -> str:
     suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
     return f"{n}{suffix}"
@@ -74,6 +84,7 @@ def register(app: Flask) -> None:
     app.add_template_global(site_status)
     app.add_template_global(current_user)
     app.add_template_global(here)
+    app.add_template_global(site_url)
     app.add_template_global(posts.latest, "latest_update")
     app.add_template_filter(display.moment, "moment")
     app.add_template_filter(display.day, "day")

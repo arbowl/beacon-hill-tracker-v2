@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block title %}{{ update.meta.title }} | Beacon Hill Compliance Tracker{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_extra %}<meta property="article:published_time" content="{{ update.meta.published.isoformat() }}">
+{% if update.meta.updated %}<meta property="article:modified_time" content="{{ update.meta.updated.isoformat() }}">
+{% endif %}{% endblock %}
 {% block description %}{{ update.meta.summary }}{% endblock %}
 {% block main %}
 <header class="page-head">

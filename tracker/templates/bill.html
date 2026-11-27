@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block title %}{{ bill_id }}: {{ title or 'Bill' }} | Beacon Hill Compliance Tracker{% endblock %}
-{% block description %}What the public record shows about how each committee handled {{ bill_id }} under the joint rules.{% endblock %}
+{% block description %}{{ summary }}{% endblock %}
+{% block og_image %}{{ card_url('cards.bill', session=session, bill_id=bill_id) }}{% endblock %}
+{% block og_image_alt %}{{ bill_id }}: {{ summary }}{% endblock %}
 {% block main %}
 <p class="crumbs"><a href="{{ url_for('dashboard.index') }}">Dashboard</a> <span class="muted">/ Bills / {{ bill_id }}</span></p>
 <section class="bill-head">

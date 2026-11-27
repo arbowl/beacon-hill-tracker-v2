@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% block og_title %}{% if selected_committee and stats %}{{ selected_committee.name }}{% else %}{{ super() }}{% endif %}{% endblock %}
+{% block description %}{% if selected_committee and stats %}{{ '%.1f' | format(stats.compliance_rate) }}% of {{ stats.total | number }} bill segments in {% if not filters.chamber %}the {% endif %}{{ selected_committee.name }} show no detected violation of the joint rules, as of {{ selected_committee.as_of | long_day }}.{% else %}{{ super() }}{% endif %}{% endblock %}
+{% block og_url %}{% if selected_committee and stats %}{{ site_url(url_for('dashboard.index', committee=filters.committee)) }}{% else %}{{ super() }}{% endif %}{% endblock %}
+{% block og_image %}{% if selected_committee and stats %}{{ card_url('cards.committee', committee_id=filters.committee) }}{% elif stats %}{{ card_url('cards.site') }}{% else %}{{ super() }}{% endif %}{% endblock %}
+{% block og_image_alt %}{% if stats %}{{ selected_committee.name ~ ': ' if selected_committee }}{{ '%.1f' | format(stats.compliance_rate) }}% of bill segments with no detected violation of the joint rules{% else %}{{ super() }}{% endif %}{% endblock %}
 {% block scripts %}<script src="{{ url_for('static', filename='js/chart.umd.min.js') }}" defer></script>{% endblock %}
 {% block main %}
 <section class="hero">
