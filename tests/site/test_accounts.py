@@ -367,6 +367,11 @@ def test_signed_in_pages_are_private(
     html = mine.get_data(as_text=True)
     assert "Watchlist" in html and "Watch this committee" in html
     assert re.search(r"style=\"", html) is None
+    start = html.index('<form id="filter-form"')
+    filter_form = html[start : html.index("</form>", start)]
+    assert "<form" not in filter_form[1:] and 'id="share"' not in filter_form
+    fragment = client.get("/?committee=J19", headers={"HX-Request": "true"}).get_data(as_text=True)
+    assert 'hx-post="/watchlist/watch" hx-target="this"' in fragment
 
 
 def test_sign_in_is_unavailable_without_mail(app: Flask, client: FlaskClient):
