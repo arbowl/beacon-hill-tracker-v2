@@ -72,3 +72,24 @@ def test_builder(client: FlaskClient, published: None):
     assert "could not be read" in client.get("/embed?size=huge").get_data(as_text=True)
     bill_page = client.get("/bills/194/H10").get_data(as_text=True)
     assert 'href="/embed?kind=bill&amp;bill=H10"' in bill_page
+
+
+def test_aggregate_widgets(client: FlaskClient, db: Connection, published: None):
+    session = db.execute("SELECT * FROM committee_stats WHERE committee_id = '*'").fetchone()
+    html = _widget(client, "/embed/all?theme=dark")
+    assert "All committees" in html and f"{session['total']:,} bill segments" in html
+    assert 'class="theme-dark"' in html and 'href="http://localhost/"' in html
+    joint = db.execute("SELECT * FROM committee_stats WHERE committee_id = 'J'").fetchone()
+    html = _widget(client, "/embed/chamber/j")
+    assert "Joint committees" in html and f"{joint['compliance_rate']:.1f}%" in html
+    assert 'href="http://localhost/?committee=J"' in html
+    assert "no house committees" in _widget(client, "/embed/chamber/H", 404)
+    assert "no chamber X" in _widget(client, "/embed/chamber/x", 404)
+
+
+def test_builder_aggregates(client: FlaskClient, published: None):
+    html = unescape(client.get("/embed?kind=chamber&chamber=S").get_data(as_text=True))
+    assert '<iframe src="http://localhost/embed/chamber/S?theme=light"' in html
+    html = unescape(client.get("/embed?kind=all&theme=dark").get_data(as_text=True))
+    assert '<iframe src="http://localhost/embed/all?theme=dark"' in html
+    assert "could not be read" in client.get("/embed?kind=chamber&chamber=Q").get_data(as_text=True)

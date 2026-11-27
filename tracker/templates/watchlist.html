@@ -68,6 +68,33 @@
       <p class="empty">Nothing watched yet. Use "Watch this bill" on a bill page, or "Watch this committee" after choosing a committee on the <a href="{{ url_for('dashboard.index') }}">dashboard</a>.</p>
       {% endif %}
     </section>
+
+    {% if signup_summary %}
+    <section class="block" id="signups">
+      <h2>Email sign-ups</h2>
+      <p class="dek">Visible to webmasters only. {{ signup_summary.total | number }} active account{{ 's' if signup_summary.total != 1 }}, {{ signup_summary.emailed | number }} taking at least one kind of email; {{ signup_summary.week | number }} new in the last 7 days, {{ signup_summary.month | number }} in the last 30.</p>
+      {% if signups %}
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Email</th><th>Signed up</th><th>Last sign-in</th><th>Receives</th></tr></thead>
+          <tbody>
+            {% for s in signups %}
+            <tr>
+              <td>{{ s.email }}{% if s.disabled %} <span class="muted watch-sub">(disabled)</span>{% endif %}</td>
+              <td class="muted watch-sub">{{ s.created_at | moment }}</td>
+              <td class="muted watch-sub">{% if s.last_login_at %}{{ s.last_login_at | moment }}{% else %}Never{% endif %}</td>
+              <td class="watch-sub">{% if s.kinds %}{% for k in s.kinds %}{{ email_kind_short[k] }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}<span class="muted">No email</span>{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if signups | length == signup_limit %}<p class="form-note">Showing the newest {{ signups | length }}.</p>{% endif %}
+      {% else %}
+      <p class="empty">No accounts yet.</p>
+      {% endif %}
+    </section>
+    {% endif %}
   </div>
 
   <div>

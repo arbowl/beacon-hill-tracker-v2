@@ -254,3 +254,41 @@ def test_referral_owing_nothing_shows_without_a_status(
         "none_yet",
         ["votes_posted"],
     )
+
+
+def test_carried_bill_points_to_the_document_checked(
+    client: FlaskClient, pusher: Pusher, db: Connection
+):
+    bundle = _with_owed_nothing()
+    (item,) = bundle["no_requirements"]
+    carrier = bundle["tenures"][0]["bill_id"]
+    item |= {"reason": "accompanied", "awaiting": [], "carried_by": carrier}
+    run_id = pusher.push({"J45": bundle})
+
+    html = _text(client, "/bills/194/H9999")
+    assert "Came before the committee" in html
+    assert f'href="/bills/194/{carrier}"' in html
+    assert "which is checked instead" in html
+    assert "as part of a study order or new draft checked instead" in _text(
+        client, "/?committee=J45"
+    )
+
+    (rebuilt,) = dumps.bundle(db, run_id, "J45").no_requirements
+    assert (rebuilt.reason.value, rebuilt.carried_by) == ("accompanied", carrier)
+
+
+def test_record_gap_shows_its_note(client: FlaskClient, pusher: Pusher, db: Connection):
+    bundle = _with_owed_nothing()
+    (item,) = bundle["no_requirements"]
+    note = "The bill history does not record its transfer to the committee."
+    item |= {"reason": "record_incomplete", "awaiting": [], "note": note}
+    run_id = pusher.push({"J45": bundle})
+
+    html = _text(client, "/bills/194/H9999")
+    assert "Came before the committee" in html
+    assert "does not show how this bill came before the committee" in html
+    assert note in html
+    assert "where the legislative record does not show" in _text(client, "/?committee=J45")
+
+    (rebuilt,) = dumps.bundle(db, run_id, "J45").no_requirements
+    assert (rebuilt.reason.value, rebuilt.note) == ("record_incomplete", note)

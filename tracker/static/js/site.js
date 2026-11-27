@@ -154,6 +154,25 @@
     update();
   }
 
+  function initEmbedBuilder() {
+    var form = document.querySelector("form[data-embed-builder]");
+    if (!form) return;
+    function sync() {
+      var checked = form.querySelector('input[name="kind"]:checked');
+      var kind = checked ? checked.value : null;
+      form.querySelectorAll(".field[data-kind]").forEach(function (field) {
+        var off = field.getAttribute("data-kind") !== kind;
+        field.hidden = off;
+        field.querySelectorAll("input, select").forEach(function (el) { el.disabled = off; });
+      });
+    }
+    form.addEventListener("change", function (event) {
+      if (event.target.name === "kind") sync();
+    });
+    sync();
+  }
+
+  document.addEventListener("DOMContentLoaded", initEmbedBuilder);
   document.addEventListener("DOMContentLoaded", initCharts);
   document.addEventListener("DOMContentLoaded", initToc);
   document.addEventListener("htmx:load", function (event) {

@@ -1,7 +1,7 @@
 {# Watch control. Expects watch: WatchButton. #}
 {% if current_user() %}
 <form class="watch" method="post" action="{{ url_for('watch.remove' if watch.watching else 'watch.add') }}"
-      hx-post="{{ url_for('watch.remove' if watch.watching else 'watch.add') }}" hx-swap="outerHTML">
+      hx-post="{{ url_for('watch.remove' if watch.watching else 'watch.add') }}" hx-target="this" hx-swap="outerHTML">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="kind" value="{{ watch.target.kind }}">
   <input type="hidden" name="session" value="{{ watch.target.session }}">

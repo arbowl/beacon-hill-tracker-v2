@@ -305,3 +305,84 @@ def test_roll_up(statuses: tuple[RequirementStatus, ...]):
     else:
         expected = ComplianceLabel.PROVISIONAL
     assert roll_up(statuses) == expected
+
+
+def _carried() -> dict:
+    """A bundle with a bill that came before J19 only by accompanying H10."""
+    b = bundle()
+    b["bills"].append({"bill_id": "H12", "title": None, "url": "https://x.org/H12"})
+    b["no_requirements"] = [
+        {
+            "tenure_id": "194/H12:J19:2025-03-01",
+            "bill_id": "H12",
+            "committee_id": "J19",
+            "referred_on": "2025-03-01",
+            "reason": "accompanied",
+            "carried_by": "H10",
+        }
+    ]
+    return b
+
+
+def test_carried_bill_round_trips():
+    model = CommitteeBundle.model_validate(_carried())
+    (item,) = model.no_requirements
+    assert (item.reason.value, item.carried_by) == ("accompanied", "H10")
+    assert CommitteeBundle.model_validate_json(model.model_dump_json()) == model
+
+
+def _carried_item(b: dict) -> dict:
+    return b["no_requirements"][0]
+
+
+CARRIED_REJECTIONS: dict[str, Callable[[dict], None]] = {
+    "accompanied without carried_by": _set(_carried_item, "carried_by", None),
+    "carried_by with another reason": _set(_carried_item, "reason", "none_apply"),
+    "carried by itself": _set(_carried_item, "carried_by", "H12"),
+    "carried_by form": _set(_carried_item, "carried_by", "H.10"),
+    "accompanied awaiting": _set(_carried_item, "awaiting", ["votes_posted"]),
+}
+
+
+@pytest.mark.parametrize("mutate", CARRIED_REJECTIONS.values(), ids=CARRIED_REJECTIONS.keys())
+def test_rejects_carried(mutate: Callable[[dict], None]):
+    b = _carried()
+    mutate(b)
+    with pytest.raises(ValidationError):
+        CommitteeBundle.model_validate(b)
+
+
+def _incomplete() -> dict:
+    """A bundle with a bill whose transfer to J19 the record omits."""
+    b = _carried()
+    b["no_requirements"][0] |= {
+        "reason": "record_incomplete",
+        "carried_by": None,
+        "note": "The bill history does not record its transfer to the committee.",
+    }
+    return b
+
+
+def test_record_gap_round_trips():
+    model = CommitteeBundle.model_validate(_incomplete())
+    (item,) = model.no_requirements
+    assert item.reason.value == "record_incomplete"
+    assert item.note and item.note.startswith("The bill history")
+    assert CommitteeBundle.model_validate_json(model.model_dump_json()) == model
+
+
+INCOMPLETE_REJECTIONS: dict[str, Callable[[dict], None]] = {
+    "record_incomplete without note": _set(_carried_item, "note", None),
+    "note with another reason": _set(_carried_item, "reason", "none_apply"),
+    "record_incomplete awaiting": _set(_carried_item, "awaiting", ["votes_posted"]),
+}
+
+
+@pytest.mark.parametrize(
+    "mutate", INCOMPLETE_REJECTIONS.values(), ids=INCOMPLETE_REJECTIONS.keys()
+)
+def test_rejects_record_gap(mutate: Callable[[dict], None]):
+    b = _incomplete()
+    mutate(b)
+    with pytest.raises(ValidationError):
+        CommitteeBundle.model_validate(b)

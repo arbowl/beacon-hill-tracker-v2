@@ -105,7 +105,7 @@ def bill_owed_nothing(conn: Connection, session: int, bill_id: str) -> list[dict
     """Live referrals of the bill that owed nothing; they have no label."""
     return conn.execute(
         "SELECT n.tenure_id, n.committee_id, rc.name AS committee_name, n.referred_on,"
-        " n.reason, n.awaiting, b.title, b.url AS bill_url"
+        " n.reason, n.awaiting, n.carried_by, n.note, b.title, b.url AS bill_url"
         " FROM committee_current cc"
         " JOIN run_committees rc ON rc.run_id = cc.run_id AND rc.committee_id = cc.committee_id"
         " JOIN no_requirement_tenures n"

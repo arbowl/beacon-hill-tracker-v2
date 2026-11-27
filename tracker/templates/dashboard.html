@@ -58,8 +58,9 @@
         </select>
       </div>
       <noscript><button class="btn small" type="submit">Apply filters</button></noscript>
-      {% include "partials/_share.html" %}
     </form>
+    {# Outside the form: it holds the committee Watch form, which must not nest or inherit hx-target. #}
+    {% include "partials/_share.html" %}
   </aside>
   {% include "partials/_results.html" %}
 </section>

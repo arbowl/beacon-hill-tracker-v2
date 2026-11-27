@@ -4,7 +4,7 @@
 <header class="page-head">
   <p class="kicker">Embed</p>
   <h1>Embed a Tracker widget</h1>
-  <p class="dek">Put a committee's or a bill's current record on any site. Widgets are free to use, need no key, and update with the Tracker.</p>
+  <p class="dek">Put the current record of a committee, a chamber, all committees, or a bill on any site. Widgets are free to use, need no key, and update with the Tracker.</p>
 </header>
 <div class="account">
   <div>
@@ -17,21 +17,21 @@
       <h2 class="preview-head">Preview</h2>
       <iframe class="embed-preview" src="{{ src }}" width="{{ width }}" height="{{ height }}" title="Widget preview"></iframe>
       {% else %}
-      <p class="empty">Choose a committee or a bill to get a snippet.</p>
+      <p class="empty">Choose what to show to get a snippet.</p>
       {% endif %}
     </section>
   </div>
   <div>
     <section class="block">
       <h2>Choose</h2>
-      <form method="get" action="{{ url_for('embed.builder') }}">
+      <form method="get" action="{{ url_for('embed.builder') }}" data-embed-builder>
         <fieldset class="check-group">
           <legend>Show</legend>
-          {% for value, text in [('committee', 'A committee'), ('bill', 'A bill')] %}
+          {% for value, text in [('committee', 'A committee'), ('chamber', 'A chamber'), ('all', 'All committees'), ('bill', 'A bill')] %}
           <label class="check"><input type="radio" name="kind" value="{{ value }}"{% if choice.kind == value %} checked{% endif %}><span>{{ text }}</span></label>
           {% endfor %}
         </fieldset>
-        <div class="field">
+        <div class="field" data-kind="committee">
           <label for="committee">Committee</label>
           <select class="select" id="committee" name="committee">
             {% for c in committees %}
@@ -39,7 +39,15 @@
             {% endfor %}
           </select>
         </div>
-        <div class="field">
+        <div class="field" data-kind="chamber">
+          <label for="chamber">Chamber</label>
+          <select class="select" id="chamber" name="chamber">
+            {% for letter, name in chambers %}
+            <option value="{{ letter }}"{% if letter == choice.chamber %} selected{% endif %}>{{ name }} committees</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field" data-kind="bill">
           <label for="bill">Bill number</label>
           <input class="input" id="bill" name="bill" maxlength="20" value="{{ choice.bill }}" placeholder="H10">
         </div>

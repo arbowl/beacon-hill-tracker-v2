@@ -22,8 +22,8 @@ from tracker.auth.keys import NewKey
 from tracker.auth.sessions import SessionUser
 from tracker.config import Settings
 from tracker.db import pool
-from tracker.display import ALERT_KIND_TEXT, email_kind_groups
-from tracker.enums import AlertKind, DumpFormat, EmailKind, KeyScope
+from tracker.display import ALERT_KIND_TEXT, EMAIL_KIND_SHORT, email_kind_groups
+from tracker.enums import AlertKind, DumpFormat, EmailKind, KeyScope, UserRole
 from tracker.publish import dumps
 from tracker.watch import queries
 from tracker.watch.button import WatchButton
@@ -31,6 +31,8 @@ from tracker.watch.queries import WatchTarget
 from tracker.web import site_status
 
 bp = Blueprint("watch", __name__, url_prefix="/watchlist")
+
+_SIGNUPS_SHOWN = 50
 
 
 def _private(body: str, status: int = 200) -> Response:
@@ -46,6 +48,9 @@ def _page(user: SessionUser, new_key: NewKey | None = None, key_error: str | Non
         enabled = accounts.email_prefs(conn, user.user_id)
         downloads = dumps.current(conn, status.session) if status else []
         api_keys = keys.live_keys(conn, user.user_id, KeyScope.READ)
+        webmaster = user.role == UserRole.WEBMASTER
+        signup_summary = accounts.signup_summary(conn) if webmaster else None
+        signups = accounts.recent_signups(conn, _SIGNUPS_SHOWN) if webmaster else []
     return render_template(
         "watchlist.html",
         user=user,
@@ -57,6 +62,10 @@ def _page(user: SessionUser, new_key: NewKey | None = None, key_error: str | Non
         api_keys=api_keys,
         new_key=new_key,
         key_error=key_error,
+        signup_summary=signup_summary,
+        signups=signups,
+        email_kind_short=EMAIL_KIND_SHORT,
+        signup_limit=_SIGNUPS_SHOWN,
     )
 
 
