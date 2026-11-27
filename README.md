@@ -80,8 +80,8 @@ Signed-in users create read keys on their watchlist. The API is described by
 curl -H "Authorization: Bearer bht_read_..." http://127.0.0.1:5000/api/v1/stats?committee=J19
 ```
 
-Widgets need no key. Build a snippet at `/embed`, or frame `/embed/committee/J19?theme=dark`
-or `/embed/bill/194/H10` directly.
+Widgets need no key. Build a snippet at `/embed`, or frame `/embed/committee/J19?theme=dark`,
+`/embed/chamber/H`, `/embed/all`, or `/embed/bill/194/H10` directly.
 
 ### Operations
 

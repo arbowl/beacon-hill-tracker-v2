@@ -15,7 +15,7 @@ from beacon_contract import v1
 from tracker.bills import queries as bills
 from tracker.config import Settings
 from tracker.dashboard import queries
-from tracker.dashboard.filters import normalize_bill_id
+from tracker.dashboard.filters import CHAMBERS, normalize_bill_id
 from tracker.db import pool
 from tracker.web import content_security_policy, site_status
 
@@ -31,6 +31,8 @@ class Theme(StrEnum):
 
 class EmbedKind(StrEnum):
     COMMITTEE = "committee"
+    CHAMBER = "chamber"
+    ALL = "all"
     BILL = "bill"
 
 
@@ -54,6 +56,7 @@ class BuilderQuery(BaseModel):
 
     kind: EmbedKind = EmbedKind.COMMITTEE
     committee: Annotated[str, StringConstraints(pattern=v1.COMMITTEE_ID_PATTERN)] | None = None
+    chamber: Annotated[str, StringConstraints(pattern=r"^[HSJ]$")] = "H"
     bill: Annotated[str, StringConstraints(strip_whitespace=True, max_length=20)] = ""
     theme: Theme = Theme.LIGHT
     size: Size = Size.MEDIUM
@@ -128,6 +131,42 @@ def committee(committee_id: str) -> Response:
     )
 
 
+def _aggregate(key: str, name: str, link: str) -> Response:
+    """The committee widget for a stats row that spans committees: a chamber or the session."""
+    theme = _theme()
+    status = site_status()
+    if status is None:
+        return _missing(theme, "No data has been published yet.")
+    with pool().connection() as conn:
+        stats = queries.stats(conn, status.session, key)
+    if stats is None:
+        return _missing(theme, f"The Tracker has no {name.lower()}.")
+    return _widget(
+        "embed/committee.html",
+        theme=theme,
+        name=name,
+        as_of=stats["as_of"],
+        stats=stats,
+        bar=_bar(stats),
+        link=_site_url(link),
+    )
+
+
+@bp.get("/all")
+def all_committees() -> Response:
+    return _aggregate(queries.SESSION_ROW, "All committees", url_for("dashboard.index"))
+
+
+@bp.get("/chamber/<letter>")
+def chamber(letter: str) -> Response:
+    letter = letter.upper()
+    if letter not in CHAMBERS:
+        return _missing(_theme(), f"The Tracker has no chamber {letter}.")
+    return _aggregate(
+        letter, f"{CHAMBERS[letter]} committees", url_for("dashboard.index", committee=letter)
+    )
+
+
 @bp.get("/bill/<int:session>/<bill_id>")
 def bill(session: int, bill_id: str) -> Response:
     theme = _theme()
@@ -166,7 +205,7 @@ def _site_url(path: str) -> str:
 
 @bp.get("")
 def builder() -> str:
-    """Pick a committee or bill, a theme, and a size; shows the snippet and a live preview."""
+    """Pick what to show, a theme, and a size; shows the snippet and a live preview."""
     status = site_status()
     try:
         choice = BuilderQuery.model_validate(
@@ -186,6 +225,10 @@ def builder() -> str:
             )
             if committee_id:
                 src = url_for("embed.committee", committee_id=committee_id, theme=choice.theme)
+        elif choice.kind == EmbedKind.CHAMBER:
+            src = url_for("embed.chamber", letter=choice.chamber, theme=choice.theme)
+        elif choice.kind == EmbedKind.ALL:
+            src = url_for("embed.all_committees", theme=choice.theme)
         else:
             bill_id = normalize_bill_id(choice.bill)
             if bill_id:
@@ -199,6 +242,7 @@ def builder() -> str:
         "embed/builder.html",
         choice=choice,
         committees=committees,
+        chambers=list(CHAMBERS.items()),
         sizes=list(Size),
         themes=list(Theme),
         src=src,
