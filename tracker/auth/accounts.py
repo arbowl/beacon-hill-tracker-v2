@@ -1,6 +1,7 @@
 """Accounts and their email preferences."""
 
 from dataclasses import dataclass
+from typing import Any
 
 from tracker.auth.links import LinkClaim, lock_email
 from tracker.db import Connection
@@ -81,3 +82,29 @@ def set_email_prefs(conn: Connection, user_id: int, enabled: frozenset[EmailKind
 def default_alerts(enabled: frozenset[EmailKind]) -> frozenset[AlertKind]:
     """The alerts a new watch starts with."""
     return frozenset(alert for kind, alert in EMAIL_ALERT.items() if kind in enabled)
+
+
+def signup_summary(conn: Connection) -> dict[str, int]:
+    """Account counts: total, new in the last 7 and 30 days, and those taking any email."""
+    row = conn.execute(
+        "SELECT count(*) AS total,"
+        "   count(*) FILTER (WHERE created_at > now() - interval '7 days') AS week,"
+        "   count(*) FILTER (WHERE created_at > now() - interval '30 days') AS month,"
+        "   count(*) FILTER (WHERE EXISTS (SELECT 1 FROM user_email_prefs p"
+        "     WHERE p.user_id = u.id AND p.enabled)) AS emailed"
+        " FROM users u WHERE disabled_at IS NULL"
+    ).fetchone()
+    assert row is not None
+    return dict(row)
+
+
+def recent_signups(conn: Connection, limit: int) -> list[dict[str, Any]]:
+    """The newest accounts with their sign-up time, last sign-in, and enabled email kinds."""
+    return conn.execute(
+        "SELECT u.email, u.created_at, u.last_login_at, u.disabled_at IS NOT NULL AS disabled,"
+        "   coalesce(array_agg(p.kind::text ORDER BY p.kind) FILTER (WHERE p.enabled), '{}')"
+        "     AS kinds"
+        " FROM users u LEFT JOIN user_email_prefs p ON p.user_id = u.id"
+        " GROUP BY u.id ORDER BY u.created_at DESC, u.id DESC LIMIT %s",
+        (limit,),
+    ).fetchall()

@@ -381,3 +381,25 @@ def test_sign_in_is_unavailable_without_mail(app: Flask, client: FlaskClient):
     assert "not available" in client.get("/signin").get_data(as_text=True)
     response = client.post("/signin", data={"csrf_token": _csrf(client), "email": "a@b.org"})
     assert response.status_code == 503
+
+
+def test_watchlist_shows_email_sign_ups_to_webmasters_only(
+    client: FlaskClient, db: Connection, outbox: list[EmailMessage]
+):
+    accounts.create(db, "reader@example.org", UserRole.USER, frozenset({EmailKind.WEEKLY_SUMMARY}))
+    accounts.create(db, "quiet@example.org", UserRole.USER, frozenset())
+    accounts.create(db, "admin@example.org", UserRole.WEBMASTER, frozenset())
+
+    _sign_in(client, outbox, "reader@example.org")
+    assert "Email sign-ups" not in client.get("/watchlist").get_data(as_text=True)
+
+    token = _csrf(client, "/watchlist")
+    client.post("/signout", data={"csrf_token": token})
+    _sign_in(client, outbox, "admin@example.org")
+    html = client.get("/watchlist").get_data(as_text=True)
+    start = html.index('id="signups"')
+    block = html[start : html.index("</section>", start)]
+    assert "3 active accounts, 1 taking at least one kind of email" in block
+    assert "3 new in the last 7 days" in block
+    assert "reader@example.org" in block and "the weekly summary" in block
+    assert "quiet@example.org" in block and "No email" in block
