@@ -26,6 +26,12 @@ _REQUIREMENT_ORDER = {r: i for i, r in enumerate(RequirementId)}
 
 
 @dataclass(frozen=True)
+class BillRef:
+    session: int
+    bill_id: str
+
+
+@dataclass(frozen=True)
 class Cite:
     short: str
     long: str
@@ -91,6 +97,18 @@ class Audit:
     requirements: list[RequirementView]
     history: list[HistoryEntry]
     provenance: Provenance
+
+
+def live_bills(conn: Connection) -> list[BillRef]:
+    """Every bill that has a page: one with live segments or referrals that owed nothing."""
+    rows = conn.execute(
+        "SELECT session, bill_id FROM current_tenures"
+        " UNION SELECT cc.session, n.bill_id FROM committee_current cc"
+        " JOIN no_requirement_tenures n"
+        "   ON n.run_id = cc.run_id AND n.committee_id = cc.committee_id"
+        " ORDER BY session, bill_id"
+    ).fetchall()
+    return [BillRef(r["session"], r["bill_id"]) for r in rows]
 
 
 def bill_segments(conn: Connection, session: int, bill_id: str) -> list[dict[str, Any]]:

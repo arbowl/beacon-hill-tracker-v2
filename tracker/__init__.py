@@ -19,6 +19,7 @@ from tracker.embed.routes import bp as embed_bp
 from tracker.ingest.routes import bp as ingest_bp
 from tracker.mail.routes import bp as email_bp
 from tracker.pages.routes import bp as pages_bp
+from tracker.seo.routes import bp as seo_bp
 from tracker.updates import posts
 from tracker.updates.routes import bp as updates_bp
 from tracker.watch.routes import bp as watch_bp
@@ -63,6 +64,7 @@ def create_app(settings: Settings | None = None) -> Flask:
         email_bp,
         embed_bp,
         cards_bp,
+        seo_bp,
     )
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
